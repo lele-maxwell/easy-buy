@@ -1,0 +1,16 @@
+{
+    "name": "easy-buy",
+    "version": "1.0.0",
+    "description": "Smart Business & Customer Engagement Platform",
+    "scripts": {
+      "start": "node server.js",
+      "test": "danger ci"
+    },
+    "dependencies": {
+      "danger": "^10.0.0",
+      "jest": "^26.0.0"
+    },
+    "devDependencies": {},
+    "license": "MIT"
+  }
+  
