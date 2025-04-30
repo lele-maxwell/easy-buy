@@ -1,0 +1,12 @@
+
+{
+    "name": "easy-buy-monorepo",
+    "version": "1.0.0",
+    "devDependencies": {
+      "danger": "^13.0.4"
+    },
+    "scripts": {
+      "danger": "danger ci"
+    }
+  }
+  
