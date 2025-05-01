@@ -1,29 +1,31 @@
 #PR review automation with Danger
 # .github/workflows/danger.yml
 
-name: 💬 Danger JS
+name: Danger PR Check
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, edited, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
 
 jobs:
   danger:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📦 Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: 🟢 Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '20'
 
-      - name: 📥 Install dependencies
-        run: npm install
+      - run: npm ci
 
-      - name: 🛡️ Run Danger
+      - name: Run Danger
         run: npx danger ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
