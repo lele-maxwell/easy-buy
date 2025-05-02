@@ -21,6 +21,8 @@ if (danger.github.pr.additions + danger.github.pr.deletions > 500) {
     warn("🧪 No test files changed.");
   }
   
-  // Friendly reminder to assign reviewers
-  message("👥 Don't forget to assign reviewers to this PR!");
+  // Require Reviewer Assignment 
+  if (!danger.github.pr.requested_reviewers || danger.github.pr.requested_reviewers.length === 0) {
+    warn("👀 This PR has no reviewers assigned.");
+  }
   
