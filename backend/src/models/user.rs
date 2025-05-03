@@ -22,3 +22,11 @@ pub struct RegisterResponse {
     pub name: String,
     pub email: String,
 }
+
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub sub: String,
+    pub exp: usize,
+}

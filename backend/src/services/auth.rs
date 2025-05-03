@@ -1,3 +1,5 @@
+use std::env;
+
 use axum::{http::StatusCode, Json};
 use argon2::{self, Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use rand_core::OsRng;
@@ -6,7 +8,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 use jsonwebtoken::{encode, Header, EncodingKey};  // Added JWT imports
 use crate::db::get_db_pool;
-use crate::models::user::{RegisterRequest, RegisterResponse, User};
+use crate::models::user::{Claims, RegisterRequest, RegisterResponse, User};
 use axum::extract::State;
 
 // Registration function
@@ -99,11 +101,12 @@ pub async fn login_user(
             sub: user.id.to_string(),
             exp: 10000000000, // Example expiration
         };
+        let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
         let token = encode(
             &Header::default(),
             &claims,
-            &EncodingKey::from_secret("secret".as_ref()),
+            &EncodingKey::from_secret(secret.as_bytes()),
         )
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Error generating token".to_string()))?;
 
@@ -114,9 +117,3 @@ pub async fn login_user(
 }
 
 
-// JWT claims struct
-#[derive(Serialize, Deserialize)]
-struct Claims {
-    sub: String,
-    exp: usize,
-}

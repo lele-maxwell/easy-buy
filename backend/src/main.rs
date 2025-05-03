@@ -1,3 +1,4 @@
+use api::user::user_routes;
 use axum::{
     routing::{get, post},
     Router,
@@ -9,6 +10,8 @@ mod db;
 mod models;
 mod services;
 mod api;
+mod middleware;
+
 
 use services::auth::{login_user, register_user};
 use sqlx::postgres::PgPoolOptions;
@@ -30,6 +33,7 @@ async fn main() {
         .route("/", get(|| async { "Easy Buy API is running 🚀" }))
         .route("/api/auth/register", post(register_user))
         .route("/api/auth/login", post(login_user))
+        .nest("/api/user", user_routes()) // <--- mount protected routes
         .layer(CorsLayer::permissive())
         .with_state(pool); // pass state
 

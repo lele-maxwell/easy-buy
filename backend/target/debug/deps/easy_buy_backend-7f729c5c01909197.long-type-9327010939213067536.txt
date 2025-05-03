@@ -1,0 +1,1 @@
+fn(AuthMiddleware, State<Pool<Postgres>>) -> impl std::future::Future<Output = std::string::String> {protected_profile}
