@@ -1,0 +1,12 @@
+/home/maxwell/projects/projects/easy-buy/backend/target/debug/deps/libsqlx-553a83eb624f2ce3.rmeta: /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/lib.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/any/mod.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/macros/mod.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/ty_match.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/spec_error.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/lib.md /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/macros/test.md /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/any/install_drivers_note.md
+
+/home/maxwell/projects/projects/easy-buy/backend/target/debug/deps/sqlx-553a83eb624f2ce3.d: /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/lib.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/any/mod.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/macros/mod.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/ty_match.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/spec_error.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/lib.md /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/macros/test.md /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/any/install_drivers_note.md
+
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/lib.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/any/mod.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/macros/mod.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/ty_match.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/spec_error.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/lib.md:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/macros/test.md:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.5/src/any/install_drivers_note.md:

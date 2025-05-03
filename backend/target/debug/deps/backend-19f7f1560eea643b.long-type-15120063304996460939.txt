@@ -1,0 +1,1 @@
+fn(axum::Json<user::LoginRequest>, Extension<{type error}>) -> impl std::future::Future<Output = axum::Json<std::string::String>> {login}

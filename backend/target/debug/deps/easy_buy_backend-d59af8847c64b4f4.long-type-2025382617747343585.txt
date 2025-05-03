@@ -1,0 +1,1 @@
+fn(axum::Json<LoginRequest>, Pool<Postgres>) -> impl std::future::Future<Output = Result<axum::Json<LoginResponse>, (axum::http::StatusCode, std::string::String)>> {login_user}
