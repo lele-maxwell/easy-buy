@@ -1,35 +1,24 @@
 use serde::{Deserialize, Serialize};
-use validator::validate_email;
+use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, sqlx::FromRow)]
 pub struct User {
-    pub id: uuid::Uuid,
+    pub id: Uuid,
+    pub name: String,
     pub email: String,
-    pub hashed_password: String,
-    pub created_at: chrono::NaiveDateTime,
+    pub password_hash: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct RegisterRequest {
+    pub name: String,
     pub email: String,
     pub password: String,
 }
 
-#[derive(Deserialize)]
-pub struct LoginRequest {
+#[derive(Debug, Serialize)]
+pub struct RegisterResponse {
+    pub id: Uuid,
+    pub name: String,
     pub email: String,
-    pub password: String,
-}
-
-impl RegisterRequest {
-    // Validation for registration
-    pub fn validate(&self) -> Result<(), String> {
-        if !validate_email(&self.email) {
-            return Err("Invalid email format".into());
-        }
-        if self.password.len() < 8 {
-            return Err("Password must be at least 8 characters".into());
-        }
-        Ok(())
-    }
 }

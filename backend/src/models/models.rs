@@ -5,10 +5,10 @@ use validator::Validate;
 pub struct RegisterRequest {
     #[validate(email)]
     pub email: String,
-
+ 
     #[validate(length(min = 6))]
     pub password: String,
-}
+} 
 
 #[derive(Debug, Deserialize)]
 pub struct LoginRequest {

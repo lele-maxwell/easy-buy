@@ -1,30 +1,46 @@
-pub mod db;
-pub mod config;
-
-use axum::{routing::get, Router};
-use tokio::net::TcpListener;
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use tower_http::cors::CorsLayer;
-use dotenvy::dotenv;
-use std::env;
+
+mod config;
+mod db;
+mod models;
+mod services;
+mod api;
+
+use services::auth::{login_user, register_user};
+use sqlx::postgres::PgPoolOptions;
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
-     // Load .env
-     config::load_env();
-      // DB pool
-    let pool = db::init_db_pool().await;
+    dotenvy::dotenv().ok();
 
+    // Setup DB pool
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL not set");
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&database_url)
+        .await
+        .expect("Failed to connect to database");
+
+    // Define app routes
     let app = Router::new()
         .route("/", get(|| async { "Easy Buy API is running 🚀" }))
-        .layer(CorsLayer::permissive());
-        //.nest("/auth", api::auth::auth_routes());
+        .route("/api/auth/register", post(register_user))
+        .route("/api/auth/login", post(login_user))
+        .layer(CorsLayer::permissive())
+        .with_state(pool); // pass state
+
+    // Start the server
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000")
+        .await
+        .expect("Failed to bind to address");
 
     println!("🚀 Server listening on http://localhost:8000");
-    // ✅ Run the Axum server
-    let listener = TcpListener::bind("0.0.0.0:8000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
 
+    axum::serve(listener, app)
+        .await
+        .expect("Server failed to start");
 }
-
-

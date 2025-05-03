@@ -1,12 +1,21 @@
-use sqlx::{postgres::PgPoolOptions, PgPool};
-use std::env;
+use sqlx::{Pool, Postgres};
+use std::sync::OnceLock;
 
-pub async fn init_db_pool() -> PgPool {
-    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
+use crate::config::get_database_url;
 
-    PgPoolOptions::new()
+static DB_POOL: OnceLock<Pool<Postgres>> = OnceLock::new();
+
+pub async fn get_db_pool() -> Result<Pool<Postgres>, sqlx::Error> {
+    if let Some(pool) = DB_POOL.get() {
+        return Ok(pool.clone());
+    }
+
+    let database_url = get_database_url();
+    let pool = sqlx::postgres::PgPoolOptions::new()
         .max_connections(5)
-        .connect(&db_url)
-        .await
-        .expect("❌ Failed to connect to the database")
+        .connect(&database_url)
+        .await?;
+
+    DB_POOL.set(pool.clone()).unwrap();
+    Ok(pool)
 }

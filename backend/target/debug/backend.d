@@ -1,1 +1,0 @@
-/home/maxwell/projects/projects/easy-buy/backend/target/debug/backend: /home/maxwell/projects/projects/easy-buy/backend/src/config.rs /home/maxwell/projects/projects/easy-buy/backend/src/db.rs /home/maxwell/projects/projects/easy-buy/backend/src/main.rs
