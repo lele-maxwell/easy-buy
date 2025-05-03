@@ -1,4 +1,4 @@
-use api::user::user_routes;
+use api::{auth::auth_routes, user::user_routes};
 use axum::{
     routing::{get, post},
     Router,
@@ -13,7 +13,7 @@ mod api;
 mod middleware;
 
 
-use services::auth::{login_user, register_user};
+//use services::auth::{login_user, register_user};
 use sqlx::postgres::PgPoolOptions;
 
 #[tokio::main]
@@ -31,8 +31,9 @@ async fn main() {
     // Define app routes
     let app = Router::new()
         .route("/", get(|| async { "Easy Buy API is running 🚀" }))
-        .route("/api/auth/register", post(register_user))
-        .route("/api/auth/login", post(login_user))
+       // .route("/api/auth/register", post(register_user))
+        //.route("/api/auth/login", post(login_user))
+        .nest("/api/auth", auth_routes())
         .nest("/api/user", user_routes()) // <--- mount protected routes
         .layer(CorsLayer::permissive())
         .with_state(pool); // pass state

@@ -8,7 +8,8 @@ use sqlx::PgPool;
 use uuid::Uuid;
 use jsonwebtoken::{encode, Header, EncodingKey};  // Added JWT imports
 use crate::db::get_db_pool;
-use crate::models::user::{Claims, RegisterRequest, RegisterResponse, User};
+use crate::middleware::auth::AuthMiddleware;
+use crate::models::user::{Claims, RegisterRequest, RegisterResponse, UpdateProfileRequest, User};
 use axum::extract::State;
 
 // Registration function
@@ -117,3 +118,47 @@ pub async fn login_user(
 }
 
 
+
+// endpoint to update user profiles
+pub async fn update_profile(
+    State(pool): State<PgPool>,
+    AuthMiddleware(claims): AuthMiddleware,
+    Json(payload): Json<UpdateProfileRequest>,
+) -> Result<Json<RegisterResponse>, (StatusCode, String)> {
+    let user_id = Uuid::parse_str(&claims.sub)
+        .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid user ID".to_string()))?;
+
+    // Update the user in the database
+    let _ = sqlx::query(
+        r#"
+        UPDATE users
+        SET name = COALESCE($1, name),
+            email = COALESCE($2, email)
+        WHERE id = $3
+        "#,
+    )
+    .bind(&payload.name)
+    .bind(&payload.email)
+    .bind(user_id)
+    .execute(&pool)
+    .await
+    .map_err(|e| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to update user: {}", e),
+        )
+    })?;
+
+    // Now fetch the updated user to return in response
+    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(&pool)
+        .await
+        .map_err(|_| (StatusCode::NOT_FOUND, "User not found".to_string()))?;
+
+    Ok(Json(RegisterResponse {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+    }))
+}

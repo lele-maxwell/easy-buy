@@ -23,6 +23,13 @@ pub struct RegisterResponse {
     pub email: String,
 }
 
+#[derive(Deserialize)]
+pub struct UpdateProfileRequest {
+    pub name: Option<String>,
+    pub email: Option<String>,
+    pub password: Option<String>,
+}
+
 
 
 #[derive(Debug, Serialize, Deserialize)]

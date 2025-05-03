@@ -1,0 +1,1 @@
+fn(State<Pool<Postgres>>, {type error}, axum::Json<UpdateProfileRequest>) -> impl std::future::Future<Output = Result<axum::Json<RegisterResponse>, (axum::http::StatusCode, std::string::String)>> {update_profile}
