@@ -21,7 +21,7 @@ async fn protected_profile(
     format!("Hello, {}!", claims.sub)
 }
 
-use crate::services::auth::{update_profile};
+use crate::services::auth::update_profile;
 
 
 
