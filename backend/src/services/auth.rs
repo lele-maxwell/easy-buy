@@ -1,6 +1,7 @@
 use std::env;
 
 use argon2::password_hash::SaltString;
+use axum::response::IntoResponse;
 use axum::{http::StatusCode, Json};
 use argon2::{self, Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use rand_core::OsRng;
@@ -442,4 +443,30 @@ pub async fn change_password(
         })?;
 
     Ok((StatusCode::OK, "Password updated successfully".to_string()))
+}
+
+
+// delelete login user
+
+pub async fn delete_account(
+    AuthMiddleware(claims): AuthMiddleware,
+    State(pool): State<PgPool>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let user_id = Uuid::parse_str(&claims.sub)
+        .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid user ID".to_string()))?;
+
+    let result = sqlx::query("DELETE FROM users WHERE id = $1")
+        .bind(user_id)
+        .execute(&pool)
+        .await
+        .map_err(|err| {
+            eprintln!("❌ Error deleting user: {:?}", err);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to delete account".to_string())
+        })?;
+
+    if result.rows_affected() == 0 {
+        return Err((StatusCode::NOT_FOUND, "User not found".to_string()));
+    }
+
+    Ok((StatusCode::OK, "Account deleted successfully"))
 }

@@ -34,7 +34,8 @@ async fn main() {
        // .route("/api/auth/register", post(register_user))
         //.route("/api/auth/login", post(login_user))
         .nest("/api/auth", auth_routes())
-        .nest("/api/user", user_routes()) 
+        .nest("/api/user", user_routes())
+         
         
         .layer(CorsLayer::permissive())
         .with_state(pool); // pass state
