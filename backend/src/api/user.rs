@@ -1,17 +1,16 @@
 // src/api/user.rs
-use axum::{routing::get, Router};
 use crate::middleware::auth::AuthMiddleware;
 use crate::models::user::Claims;
 use axum::extract::State;
-use sqlx::PgPool;
 use axum::routing::put;
+use axum::{routing::get, Router};
+use sqlx::PgPool;
 
 pub fn user_routes() -> Router<PgPool> {
     Router::new()
         .route("/profile", get(protected_profile))
         //.route("/profile", get(get_profile))
         .route("/profile", put(update_profile)) // <-- add this
-
 }
 
 async fn protected_profile(
@@ -22,7 +21,3 @@ async fn protected_profile(
 }
 
 use crate::services::auth::update_profile;
-
-
-
-

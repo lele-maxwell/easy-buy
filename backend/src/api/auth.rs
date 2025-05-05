@@ -14,4 +14,7 @@ pub fn auth_routes() -> Router<PgPool> {
         .route("/login", post(login_user))
         .route("/password", put(change_password))
         .route("/delete", delete(delete_account))
+        .route("/", delete(delete_account))
+
+
 }

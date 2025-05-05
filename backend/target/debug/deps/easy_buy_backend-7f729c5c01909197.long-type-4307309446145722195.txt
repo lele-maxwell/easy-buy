@@ -1,0 +1,1 @@
+fn(State<Pool<Postgres>>, axum::Json<{type error}>) -> impl std::future::Future<Output = Result<axum::Json<product::Product>, (axum::http::StatusCode, std::string::String)>> {create_product}
