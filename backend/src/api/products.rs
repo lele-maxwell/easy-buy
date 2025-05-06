@@ -9,13 +9,13 @@
 use axum::{
     extract::{Path, State},
     http::StatusCode,
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
     Json, Router,
 };
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
-use crate::{models::product::{Product, UpdateProduct}, services::product::{create_product, update_product}};
+use crate::{models::product::{Product, UpdateProduct}, services::product::{create_product, delete_product, update_product}};
 use crate::models::product::CreateProduct;
 
 pub fn product_routes(pool: PgPool) -> Router<PgPool> {
@@ -24,6 +24,7 @@ pub fn product_routes(pool: PgPool) -> Router<PgPool> {
         .route("/", post(create_product_handler))       // POST /api/product
         .route("/", get(list_products)) // GET /api/product
         .route("/:id", put(update_product_handler))
+        .route("/:id", delete(delete_product_handler)) // DELETE /api/product/:id
         .with_state(pool) // 🛠️ This line passes PgPool as shared state
 
 }
@@ -95,4 +96,21 @@ pub async fn update_product_handler(
             eprintln!("❌ Failed to update product: {:?}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, "Failed to update product".to_string())
         })
+}
+
+
+// delete product 
+
+pub async fn delete_product_handler(
+    State(pool): State<PgPool>,
+    Path(id): Path<Uuid>,
+) -> Result<StatusCode, (StatusCode, String)> {
+    delete_product(&pool, id)
+        .await
+        .map_err(|e| {
+            eprintln!("❌ Failed to delete product: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to delete product".to_string())
+        })?;
+
+    Ok(StatusCode::NO_CONTENT) // 204
 }

@@ -62,3 +62,17 @@ pub async fn update_product(
 
     Ok(product)
 }
+
+
+
+// delete a product from data base (hard delete )
+pub async fn delete_product(pool: &PgPool, id: Uuid) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        "DELETE FROM products WHERE id = $1",
+        id
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
