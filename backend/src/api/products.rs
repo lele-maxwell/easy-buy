@@ -9,13 +9,13 @@
 use axum::{
     extract::{Path, State},
     http::StatusCode,
-    routing::{get, post},
+    routing::{get, post, put},
     Json, Router,
 };
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
-use crate::{models::product::Product, services::product::create_product};
+use crate::{models::product::{Product, UpdateProduct}, services::product::{create_product, update_product}};
 use crate::models::product::CreateProduct;
 
 pub fn product_routes(pool: PgPool) -> Router<PgPool> {
@@ -23,7 +23,9 @@ pub fn product_routes(pool: PgPool) -> Router<PgPool> {
         .route("/:id", get(get_product))
         .route("/", post(create_product_handler))       // POST /api/product
         .route("/", get(list_products)) // GET /api/product
+        .route("/:id", put(update_product_handler))
         .with_state(pool) // 🛠️ This line passes PgPool as shared state
+
 }
 
 
@@ -78,4 +80,19 @@ pub async fn list_products(
         })?;
 
     Ok(Json(products))
+}
+
+// update product 
+pub async fn update_product_handler(
+    Path(id): Path<Uuid>,
+    State(pool): State<PgPool>,
+    Json(update): Json<UpdateProduct>,
+) -> Result<Json<crate::models::product::Product>, (StatusCode, String)> {
+    update_product(&pool, id, update)
+        .await
+        .map(Json)
+        .map_err(|e| {
+            eprintln!("❌ Failed to update product: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to update product".to_string())
+        })
 }

@@ -27,3 +27,14 @@ pub struct Product {
 }
 
 
+
+// dendpoint to udate product content 
+#[derive(Deserialize)]
+pub struct UpdateProduct {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub price: Option<f64>,
+    pub stock_quantity: Option<i32>,
+}
+
+
