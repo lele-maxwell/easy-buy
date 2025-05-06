@@ -35,6 +35,7 @@ pub struct UpdateProduct {
     pub description: Option<String>,
     pub price: Option<f64>,
     pub stock_quantity: Option<i32>,
+    pub deleted_at: Option<chrono::NaiveDateTime>,
 }
 
 

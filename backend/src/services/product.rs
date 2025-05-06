@@ -76,3 +76,19 @@ pub async fn delete_product(pool: &PgPool, id: Uuid) -> Result<(), sqlx::Error> 
 
     Ok(())
 }
+
+
+//soft delete 
+
+pub async fn soft_delete_product(pool: &PgPool, id: Uuid) -> Result<(), sqlx::Error> {
+    let now = Utc::now().naive_utc();
+    sqlx::query!(
+        "UPDATE products SET deleted_at = $1 WHERE id = $2",
+        now,
+        id
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}

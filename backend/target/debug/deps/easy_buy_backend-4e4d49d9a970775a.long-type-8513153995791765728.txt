@@ -1,0 +1,1 @@
+fn(axum::extract::Path<Uuid>, State<Pool<Postgres>>, axum::Json<UpdateProduct>) -> impl std::future::Future<Output = Result<axum::Json<models::product::Product>, (axum::http::StatusCode, std::string::String)>> {update_product_handler}
