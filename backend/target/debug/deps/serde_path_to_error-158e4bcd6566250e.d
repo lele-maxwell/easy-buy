@@ -1,9 +1,0 @@
-/home/maxwell/projects/projects/easy-buy/backend/target/debug/deps/libserde_path_to_error-158e4bcd6566250e.rmeta: /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/lib.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/de.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/path.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/ser.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/wrap.rs
-
-/home/maxwell/projects/projects/easy-buy/backend/target/debug/deps/serde_path_to_error-158e4bcd6566250e.d: /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/lib.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/de.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/path.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/ser.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/wrap.rs
-
-/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/lib.rs:
-/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/de.rs:
-/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/path.rs:
-/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/ser.rs:
-/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_path_to_error-0.1.17/src/wrap.rs:

@@ -1,1 +1,0 @@
-fn({type error}) -> impl std::future::Future<Output = Result<{type error}, ({type error}, std::string::String)>> {register_user}
