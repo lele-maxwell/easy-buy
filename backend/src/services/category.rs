@@ -46,3 +46,25 @@ pub async fn list_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::Error
 
     Ok(categories)
 }
+
+//delete category 
+pub async fn soft_delete_category(pool: &PgPool, category_id: Uuid) -> Result<(), sqlx::Error> {
+    let now = Utc::now();
+    let query = "
+        UPDATE categories
+        SET deleted_at = $1
+        WHERE id = $2 AND deleted_at IS NULL
+    ";
+
+    let result = sqlx::query(query)
+        .bind(now)
+        .bind(category_id)
+        .execute(pool)
+        .await?;
+
+    if result.rows_affected() == 0 {
+        return Err(sqlx::Error::RowNotFound);
+    }
+
+    Ok(())
+}
