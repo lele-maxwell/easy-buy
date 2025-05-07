@@ -1,4 +1,4 @@
-use api::{auth::auth_routes, products::product_routes, user::user_routes};
+use api::{auth::auth_routes, category::category_routes, products::product_routes, user::user_routes};
 use axum::{
     routing::{get, post},
     Router,
@@ -11,6 +11,7 @@ mod db;
 mod middleware;
 mod models;
 mod services;
+
 
 //use services::auth::{login_user, register_user};
 use sqlx::postgres::PgPoolOptions;
@@ -35,6 +36,7 @@ async fn main() {
         .nest("/api/auth", auth_routes())
         .nest("/api/user", user_routes())
         .nest("/api/product", product_routes(pool.clone()))
+        .nest("/api/category", category_routes())
         .layer(CorsLayer::permissive())
         .with_state(pool); // pass state
 
