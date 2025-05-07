@@ -3,6 +3,8 @@ use sqlx::PgPool;
 use uuid::Uuid;
 use chrono::Utc;
  
+
+ // creating new category
 pub async fn create_category(pool: &PgPool, data: CreateCategory) -> Result<Category, sqlx::Error> {
     let now = Utc::now().naive_utc();
     let id = Uuid::new_v4();
@@ -24,4 +26,23 @@ pub async fn create_category(pool: &PgPool, data: CreateCategory) -> Result<Cate
     .await?;
 
     Ok(rec)
+}
+
+// listing categories
+
+
+pub async fn list_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::Error> {
+    let categories = sqlx::query_as!(
+        Category,
+        r#"
+        SELECT id, name, description, created_at, updated_at
+        FROM categories
+        WHERE deleted_at IS NULL
+        ORDER BY created_at DESC
+        "#
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(categories)
 }

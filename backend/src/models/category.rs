@@ -9,6 +9,7 @@ pub struct Category {
     pub description: Option<String>, 
     pub created_at: Option<chrono::NaiveDateTime>,
     pub updated_at: Option<chrono::NaiveDateTime>,
+
 }
 
 #[derive(Debug, Deserialize)]
