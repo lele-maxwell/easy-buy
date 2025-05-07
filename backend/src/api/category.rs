@@ -1,5 +1,7 @@
 
 use crate::services::category::soft_delete_category;
+use axum::response::IntoResponse;
+use axum::routing::delete;
 use axum::{extract::Path, routing::patch};
 use axum::{
     extract::State, http::StatusCode, routing::{get, post}, Json, Router
@@ -18,7 +20,7 @@ pub fn category_routes() -> Router<PgPool> {
     .route("/create", post(create_category_handler))
     .route("/list", get(list_categories_handler))
     .route("/delete/soft/:id", patch(soft_delete_category_handler))
-
+    .route("/delete/hard/:id", delete(hard_delete_category_handler))
     
 }
 
@@ -68,5 +70,43 @@ pub async fn soft_delete_category_handler(
     match result {
         Ok(_) => Ok(StatusCode::NO_CONTENT),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
+}
+
+// hard delete 
+
+
+pub async fn hard_delete_category_handler(
+    Path(id): Path<Uuid>,
+    State(pool): State<PgPool>,
+) -> impl IntoResponse {
+    let result = sqlx::query!(
+        "DELETE FROM categories WHERE id = $1",
+        id
+    )
+    .execute(&pool)
+    .await;
+
+    match result {
+        Ok(res) => {
+            if res.rows_affected() == 0 {
+                (
+                    StatusCode::NOT_FOUND,
+                    Json("Category not found".to_string()),
+                )
+            } else {
+                (
+                    StatusCode::OK,
+                    Json("Category deleted successfully".to_string()),
+                )
+            }
+        }
+        Err(err) => {
+            eprintln!("Failed to delete category: {:?}", err);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Failed to delete category".to_string()),
+            )
+        }
     }
 }
