@@ -1,1 +1,0 @@
-fn(axum::Json<{type error}>, Extension<Pool<Postgres>>) -> impl std::future::Future<Output = Response<Body>> {register_user}
