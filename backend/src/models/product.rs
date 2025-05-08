@@ -38,4 +38,16 @@ pub struct UpdateProduct {
     pub deleted_at: Option<chrono::NaiveDateTime>,
 }
 
+// search product 
+#[derive(Debug, Deserialize)]
+pub struct ProductQueryParams {
+    pub query: Option<String>,
+    pub category_id: Option<Uuid>,
+    pub min_price: Option<f64>,
+    pub max_price: Option<f64>,
+    pub in_stock: Option<bool>,
+    pub page: Option<u32>,
+    pub limit: Option<u32>,
+}
+
 

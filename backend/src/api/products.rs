@@ -7,15 +7,15 @@
 
 
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     routing::{delete, get, post, put},
     Json, Router,
 };
-use sqlx::{FromRow, PgPool};
+use sqlx::{FromRow, PgPool, QueryBuilder};
 use uuid::Uuid;
 
-use crate::{models::product::{Product, UpdateProduct}, services::product::{create_product, delete_product, soft_delete_product, update_product}};
+use crate::{models::product::{Product, ProductQueryParams, UpdateProduct}, services::product::{create_product, delete_product, soft_delete_product, update_product}};
 use crate::models::product::CreateProduct;
 
 pub fn product_routes(pool: PgPool) -> Router<PgPool> {
@@ -26,7 +26,9 @@ pub fn product_routes(pool: PgPool) -> Router<PgPool> {
         .route("/:id", put(update_product_handler))
         .route("/soft/:id", delete(soft_delete_product_handler))
         .route("/:id", delete(delete_product_handler)) // DELETE /api/product/:id
+        .route("/search", get(search_products_handler))// Search product handler
         .with_state(pool) // 🛠️ This line passes PgPool as shared state
+
 
 }
 
@@ -130,4 +132,50 @@ pub async fn soft_delete_product_handler(
             eprintln!("❌ Soft delete error: {:?}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, "Soft delete failed".into())
         })
+}
+
+// product search 
+
+pub async fn search_products_handler(
+    State(pool): State<PgPool>,
+    Query(params): Query<ProductQueryParams>,
+) -> Result<Json<Vec<Product>>, (StatusCode, String)> {
+    let mut builder = QueryBuilder::new("SELECT * FROM products WHERE deleted_at IS NULL");
+
+    if let Some(query) = &params.query {
+        builder.push(" AND name ILIKE ").push_bind(format!("%{}%", query));
+    }
+
+    if let Some(category_id) = params.category_id {
+        builder.push(" AND category_id = ").push_bind(category_id);
+    }
+
+    if let Some(min_price) = params.min_price {
+        builder.push(" AND price >= ").push_bind(min_price);
+    }
+
+    if let Some(max_price) = params.max_price {
+        builder.push(" AND price <= ").push_bind(max_price);
+    }
+
+    if let Some(true) = params.in_stock {
+        builder.push(" AND stock_quantity > 0");
+    }
+
+// pagination 
+    let page = params.page.unwrap_or(1);
+    let limit = params.limit.unwrap_or(10);
+    let limit_i32 = limit as i32;
+    let offset_i32 = ((page - 1) * limit) as i32;
+    
+    builder.push(" LIMIT ").push_bind(limit_i32);
+    builder.push(" OFFSET ").push_bind(offset_i32);  
+    let query = builder.build_query_as::<Product>();
+
+    let products = query
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)))?;
+
+    Ok(Json(products))
 }
