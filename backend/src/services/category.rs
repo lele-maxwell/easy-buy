@@ -1,4 +1,4 @@
-use crate::models::category::{Category, CreateCategory, UpdateCategory};
+use crate::models::category::{Category, CreateCategory};
 use sqlx::PgPool;
 use uuid::Uuid;
 use chrono::Utc;

@@ -135,7 +135,6 @@ pub async fn soft_delete_product_handler(
 }
 
 // product search 
-
 pub async fn search_products_handler(
     State(pool): State<PgPool>,
     Query(params): Query<ProductQueryParams>,
@@ -179,3 +178,5 @@ pub async fn search_products_handler(
 
     Ok(Json(products))
 }
+
+

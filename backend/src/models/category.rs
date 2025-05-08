@@ -19,8 +19,8 @@ pub struct CreateCategory {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct UpdateCategory {
+#[derive(Deserialize)]
+pub struct UpdateCategoryRequest {
     pub name: Option<String>,
     pub description: Option<String>,
 }
