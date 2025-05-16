@@ -1,5 +1,5 @@
 # Backend-specific
-/target
+/home/maxwell/projects/projects/easy-buy/backend/target
 **/*.rs.bk
 *.log
 .env

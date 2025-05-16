@@ -37,7 +37,7 @@ async fn main() {
         .nest("/api/user", user_routes())
         .nest("/api/product", product_routes(pool.clone()))
         .nest("/api/category", category_routes())
-        .layer(CorsLayer::permissive())
+        .layer(CorsLayer::permissive()) 
         .with_state(pool); // pass state
 
     // Start the server
