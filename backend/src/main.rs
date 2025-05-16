@@ -29,7 +29,7 @@ async fn main() {
         .expect("Failed to connect to database");
 
     // Define app routes
-    let app = Router::new()
+    let app = Router::new() 
         .route("/", get(|| async { "Easy Buy API is running 🚀" }))
         // .route("/api/auth/register", post(register_user))
         //.route("/api/auth/login", post(login_user))

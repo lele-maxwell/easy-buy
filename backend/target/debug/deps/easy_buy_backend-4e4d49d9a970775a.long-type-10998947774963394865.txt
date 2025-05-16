@@ -1,1 +1,0 @@
-fn(State<Pool<Postgres>>, axum::extract::Path<{type error}>) -> impl std::future::Future<Output = Result<axum::Json<std::string::String>, (axum::http::StatusCode, std::string::String)>> {soft_delete_category_handler}
