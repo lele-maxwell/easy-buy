@@ -1,0 +1,1 @@
+fn(axum::extract::Query<CategoryFilter>, Pool<Postgres>) -> impl std::future::Future<Output = Result<axum::Json<Vec<Category>>, (axum::http::StatusCode, std::string::String)>> {filter_categories_handler}

@@ -1,5 +1,5 @@
-use crate::models::category::{Category, CreateCategory, UpdateCategoryRequest};
-use axum::{extract::{Path, State}, http::StatusCode, Json};
+use crate::models::category::{Category, CategoryFilter, CreateCategory, UpdateCategoryRequest};
+use axum::{extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, Json};
 use sqlx::PgPool;
 use uuid::Uuid;
 use chrono::Utc;
@@ -18,7 +18,7 @@ pub async fn create_category(pool: &PgPool, data: CreateCategory) -> Result<Cate
         RETURNING id, name, description, created_at, updated_at
         "#,
         id,
-        data.name,
+        data.name, 
         data.description,
         now,
         now
@@ -95,7 +95,7 @@ pub async fn get_category_by_id_handler(
     }
 }
 
-
+// update category info 
 pub async fn update_category_handler(
     Path(id): Path<Uuid>,
     State(pool): State<PgPool>,
@@ -121,4 +121,34 @@ pub async fn update_category_handler(
         Ok(_) => Err((StatusCode::NOT_FOUND, "Category not found".into())),
         Err(err) => Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to update: {}", err))),
     }
+}
+
+// search category by name 
+pub async fn filter_categories_handler(
+    Query(filter): Query<CategoryFilter>,
+    State(pool): State<PgPool>, // ✅ wrap the pool in State
+) -> Result<Json<Vec<Category>>, (StatusCode, String)> {
+    let name_filter = filter.name.unwrap_or_default();
+
+    let categories = sqlx::query_as!(
+        Category,
+        r#"
+        SELECT id, name, description, created_at, updated_at
+        FROM categories
+        WHERE is_deleted = false AND name ILIKE $1
+        "#,
+        format!("%{}%", name_filter)
+    )
+    .fetch_all(&pool)
+    .await
+    .map_err(|err| {
+        eprintln!("DB error: {:?}", err);
+        (StatusCode::INTERNAL_SERVER_ERROR, "Database error".into())
+    })?;
+
+    if categories.is_empty() {
+        return Err((StatusCode::NOT_FOUND, "No categories found".into()));
+    }
+
+    Ok(Json(categories))
 }

@@ -10,6 +10,7 @@ pub struct Category {
     pub created_at: Option<chrono::NaiveDateTime>,
     pub updated_at: Option<chrono::NaiveDateTime>,
     
+    
 
 }
 
@@ -23,4 +24,10 @@ pub struct CreateCategory {
 pub struct UpdateCategoryRequest {
     pub name: Option<String>,
     pub description: Option<String>,
+}
+
+// Define the CategoryFilter struct to handle filtering
+#[derive(Deserialize)]
+pub struct CategoryFilter {
+    pub name: Option<String>,  // The name to filter categories by (optional)
 }

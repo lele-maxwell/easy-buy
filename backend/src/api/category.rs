@@ -1,6 +1,6 @@
 
 use crate::models::category::UpdateCategoryRequest;
-use crate::services::category::{get_category_by_id_handler, soft_delete_category, update_category_handler};
+use crate::services::category::{filter_categories_handler, get_category_by_id_handler, soft_delete_category, update_category_handler};
 use axum::response::IntoResponse;
 use axum::routing::delete;
 use axum::{extract::Path, routing::patch};
@@ -23,6 +23,7 @@ pub fn category_routes() -> Router<PgPool> {
     .route("/list", get(list_categories_handler))
     .route("/update/:id", patch(update_category_handler))
     .route("/delete/soft/:id", patch(soft_delete_category_handler))
+    .route("/filter", get(filter_categories_handler)) // Add this route for filtering by name
     .route("/delete/hard/:id", delete(hard_delete_category_handler))
     
     
@@ -59,14 +60,17 @@ pub async fn list_categories_handler(
 
 
 //soft delete of category 
-
 pub async fn soft_delete_category_handler(
     State(pool): State<PgPool>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode, StatusCode> {
     let result = sqlx::query!(
-        r#"UPDATE categories SET deleted_at = NOW() WHERE id = $1"#,
-        id
+        r#"
+        UPDATE categories
+        SET is_deleted = TRUE, updated_at = NOW()
+        WHERE id = $1
+        "#,
+        id 
     )
     .execute(&pool)
     .await;
@@ -77,9 +81,8 @@ pub async fn soft_delete_category_handler(
     }
 }
 
+
 // hard delete 
-
-
 pub async fn hard_delete_category_handler(
     Path(id): Path<Uuid>,
     State(pool): State<PgPool>,
@@ -114,10 +117,5 @@ pub async fn hard_delete_category_handler(
         }
     }
 }
-
-
-// update category info
-
-
 
 

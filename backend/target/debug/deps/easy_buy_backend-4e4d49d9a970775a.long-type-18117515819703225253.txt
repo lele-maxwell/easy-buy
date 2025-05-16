@@ -1,0 +1,1 @@
+for<'a> fn(&'a Pool<Postgres>, Uuid) -> impl std::future::Future<Output = Result<(), sqlx::Error>> {soft_delete_category}
