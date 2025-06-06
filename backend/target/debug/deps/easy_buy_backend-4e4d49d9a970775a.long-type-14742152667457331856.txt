@@ -1,0 +1,1 @@
+fn(AuthMiddleware, State<Pool<Postgres>>) -> impl std::future::Future<Output = Result<impl IntoResponse, (axum::http::StatusCode, std::string::String)>> {delete_account}

@@ -1,0 +1,1 @@
+fn(AuthMiddleware, State<Pool<Postgres>>, axum::Json<{type error}>) -> impl std::future::Future<Output = Result<(axum::http::StatusCode, std::string::String), (axum::http::StatusCode, std::string::String)>> {change_password}

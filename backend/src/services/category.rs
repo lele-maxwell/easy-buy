@@ -11,7 +11,7 @@ pub async fn create_category(pool: &PgPool, data: CreateCategory) -> Result<Cate
     let id = Uuid::new_v4();
 
     let rec = sqlx::query_as!(
-        Category,
+        Category, 
         r#"
         INSERT INTO categories (id, name, description, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5)
@@ -39,7 +39,7 @@ pub async fn list_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::Error
         SELECT id, name, description, created_at, updated_at
         FROM categories
         WHERE deleted_at IS NULL
-        ORDER BY created_at DESC
+        ORDER BY created_at DESC 
         "#
     )
     .fetch_all(pool)
@@ -78,7 +78,7 @@ pub async fn get_category_by_id_handler(
 ) -> Result<Json<Category>, (StatusCode, String)> {
     let result = sqlx::query_as!(
         Category,
-        r#"
+        r#" 
         SELECT id, name, description, created_at, updated_at
         FROM categories
         WHERE id = $1
@@ -104,7 +104,7 @@ pub async fn update_category_handler(
     let result = sqlx::query!(
         r#"
         UPDATE categories
-        SET name = COALESCE($1, name),
+        SET name = COALESCE($1, name), 
             description = COALESCE($2, description),
             updated_at = NOW()
         WHERE id = $3 AND deleted_at IS NULL
@@ -130,16 +130,16 @@ pub async fn filter_categories_handler(
 ) -> Result<Json<Vec<Category>>, (StatusCode, String)> {
     let name_filter = filter.name.unwrap_or_default();
 
-    let categories = sqlx::query_as!(
+    let categories = sqlx::query_as!( 
         Category,
         r#"
         SELECT id, name, description, created_at, updated_at
         FROM categories
         WHERE is_deleted = false AND name ILIKE $1
         "#,
-        format!("%{}%", name_filter)
+        format!("%{}%", name_filter) 
     )
-    .fetch_all(&pool)
+    .fetch_all(&pool) 
     .await
     .map_err(|err| {
         eprintln!("DB error: {:?}", err);

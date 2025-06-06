@@ -1,0 +1,1 @@
+fn({type error}, axum::extract::State<Pool<Postgres>>) -> impl std::future::Future<Output = Result<axum::Json<Vec<{type error}, {type error}>>, (axum::http::StatusCode, std::string::String)>> {get_cart}

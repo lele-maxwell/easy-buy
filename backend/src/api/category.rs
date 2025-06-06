@@ -1,52 +1,39 @@
-
-use crate::models::category::UpdateCategoryRequest;
-use crate::services::category::{filter_categories_handler, get_category_by_id_handler, soft_delete_category, update_category_handler};
-use axum::response::IntoResponse;
-use axum::routing::delete;
-use axum::{extract::Path, routing::patch};
+use crate::services::category::{filter_categories_handler, get_category_by_id_handler, update_category_handler};
 use axum::{
-    extract::State, http::StatusCode, routing::{get, post}, Json, Router
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{delete, get, patch, post},
+    Json, Router
 };
 use sqlx::PgPool;
 use uuid::Uuid;
 use crate::{
-    models::category::CreateCategory, services::category::{create_category, list_categories}, 
+    models::category::CreateCategory,
+    services::category::{create_category, list_categories},
 };
-
-
-//categoy api routes 
 
 pub fn category_routes() -> Router<PgPool> {
     Router::new()
-    .route("/create", post(create_category_handler))
-    .route("/:id", get(get_category_by_id_handler)) // ✅ Add this
-    .route("/list", get(list_categories_handler))
-    .route("/update/:id", patch(update_category_handler))
-    .route("/delete/soft/:id", patch(soft_delete_category_handler))
-    .route("/filter", get(filter_categories_handler)) // Add this route for filtering by name
-    .route("/delete/hard/:id", delete(hard_delete_category_handler))
-    
-    
+        .route("/create", post(create_category_handler))
+        .route("/:id", get(get_category_by_id_handler))
+        .route("/list", get(list_categories_handler))
+        .route("/update/:id", patch(update_category_handler))
+        .route("/delete/soft/:id", patch(soft_delete_category_handler))
+        .route("/filter", get(filter_categories_handler))
+        .route("/delete/hard/:id", delete(hard_delete_category_handler))
 }
 
+pub async fn create_category_handler(
+    State(pool): State<PgPool>,
+    Json(payload): Json<CreateCategory>,
+) -> Result<Json<impl serde::Serialize>, (StatusCode, String)> {
+    let category = create_category(&pool, payload)
+        .await
+        .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", err)))?;
 
-
-
-
-// creating category handler
-    pub async fn create_category_handler(
-        State(pool): State<PgPool>,
-        Json(payload): Json<CreateCategory>,
-    ) -> Result<Json<impl serde::Serialize>, (StatusCode, String)> {
-        let category = create_category(&pool, payload)
-            .await
-            .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", err)))?;
-    
-        Ok(Json(category))
-    }
-
-
-    //Listing categories 
+    Ok(Json(category))
+}
 
 pub async fn list_categories_handler(
     State(pool): State<PgPool>,
@@ -58,8 +45,6 @@ pub async fn list_categories_handler(
     Ok(Json(categories))
 }
 
-
-//soft delete of category 
 pub async fn soft_delete_category_handler(
     State(pool): State<PgPool>,
     Path(id): Path<Uuid>,
@@ -70,7 +55,7 @@ pub async fn soft_delete_category_handler(
         SET is_deleted = TRUE, updated_at = NOW()
         WHERE id = $1
         "#,
-        id 
+        id
     )
     .execute(&pool)
     .await;
@@ -81,8 +66,6 @@ pub async fn soft_delete_category_handler(
     }
 }
 
-
-// hard delete 
 pub async fn hard_delete_category_handler(
     Path(id): Path<Uuid>,
     State(pool): State<PgPool>,
@@ -117,5 +100,4 @@ pub async fn hard_delete_category_handler(
         }
     }
 }
-
-
+ 

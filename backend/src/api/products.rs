@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
@@ -20,22 +12,15 @@ use crate::models::product::CreateProduct;
 
 pub fn product_routes(pool: PgPool) -> Router<PgPool> {
     Router::new()
-        .route("/:id", get(get_product))
         .route("/", post(create_product_handler))       // POST /api/product
-        .route("/", get(list_products)) // GET /api/product
-        .route("/:id", put(update_product_handler))
-        .route("/soft/:id", delete(soft_delete_product_handler))
-        .route("/:id", delete(delete_product_handler)) // DELETE /api/product/:id
-        .route("/search", get(search_products_handler))// Search product handler
-        .with_state(pool) // 🛠️ This line passes PgPool as shared state
-
-
+        .route("/", get(list_products))                // GET /api/product
+        .route("/search", get(search_products_handler)) // GET /api/product/search
+        .route("/get/:id", get(get_product))               // GET /api/product/:id
+        .route("/update/:id", put(update_product_handler))    // PUT /api/product/:id
+        .route("/delete/:id", delete(delete_product_handler)) // DELETE /api/product/:id
+        .route("/soft-delete/:id", delete(soft_delete_product_handler)) // DELETE /api/product/soft/:id
+        .with_state(pool)
 }
-
-
-
-
-
 
 // creating new products 
 pub async fn create_product_handler(
@@ -69,9 +54,7 @@ pub async fn get_product(
     Ok(Json(product))
 }
 
-
 // list all products available 
-
 pub async fn list_products(
     State(pool): State<PgPool>,
 ) -> Result<Json<Vec<Product>>, (StatusCode, String)> {
@@ -101,9 +84,7 @@ pub async fn update_product_handler(
         })
 }
 
-
 // delete product 
-
 pub async fn delete_product_handler(
     State(pool): State<PgPool>,
     Path(id): Path<Uuid>,
@@ -118,10 +99,7 @@ pub async fn delete_product_handler(
     Ok(StatusCode::NO_CONTENT) // 204
 }
 
-
 //soft delete
-
-
 pub async fn soft_delete_product_handler(
     State(pool): State<PgPool>,
     Path(id): Path<Uuid>,

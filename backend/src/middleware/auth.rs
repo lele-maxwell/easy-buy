@@ -1,12 +1,16 @@
 use axum::{
     async_trait,
-    extract::{FromRequestParts},
-    http::{request::Parts, StatusCode},
+    extract::{FromRequestParts, State},
+    http::{request::Parts, StatusCode, Request},
     response::IntoResponse,
+    middleware::Next,
+    response::Response,
 };
 use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
 use crate::models::user::Claims;
 use std::env;
+use sqlx::PgPool;
+use crate::models::user::UserRole;
 
 pub struct AuthMiddleware(pub Claims);
 
@@ -15,31 +19,70 @@ impl<S> FromRequestParts<S> for AuthMiddleware
 where
     S: Send + Sync,
 {
-    type Rejection = (StatusCode, String); // Add this line to define the Rejection type
+    type Rejection = (StatusCode, String);
 
-    async fn from_request_parts(
-        parts: &mut Parts,
-        _state: &S,
-    ) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         let auth_header = parts
             .headers
             .get("Authorization")
-            .ok_or((StatusCode::UNAUTHORIZED, "Missing Authorization header".to_string()))?
-            .to_str()
-            .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid header format".to_string()))?;
+            .and_then(|value| value.to_str().ok())
+            .ok_or((StatusCode::UNAUTHORIZED, "Missing authorization header".to_string()))?;
 
         let token = auth_header
             .strip_prefix("Bearer ")
-            .ok_or((StatusCode::UNAUTHORIZED, "Missing Bearer prefix".to_string()))?;
+            .ok_or((StatusCode::UNAUTHORIZED, "Invalid token format".to_string()))?;
 
-            let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-            let token_data = decode::<Claims>(
-            token,
-            &DecodingKey::from_secret(secret.as_bytes()),
-            &Validation::new(Algorithm::HS256),
-        )
-        .map_err(|e| (StatusCode::UNAUTHORIZED, format!("Invalid token: {}", e)))?;
+        let claims = crate::services::auth::verify_token(token)
+            .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid token".to_string()))?;
 
-        Ok(AuthMiddleware(token_data.claims))
+        Ok(AuthMiddleware(claims))
     }
+}
+
+pub async fn require_admin(
+    State(pool): State<PgPool>,
+    req: Request<axum::body::Body>,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    let auth_header = req
+        .headers()
+        .get("Authorization")
+        .and_then(|value| value.to_str().ok())
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    let token = auth_header
+        .strip_prefix("Bearer ")
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    // Verify token and get user role
+    let claims = crate::services::auth::verify_token(token)
+        .map_err(|_| StatusCode::UNAUTHORIZED)?;
+
+    if claims.role != UserRole::Admin {
+        return Err(StatusCode::FORBIDDEN);
+    }
+
+    Ok(next.run(req).await)
+}
+
+pub async fn require_auth(
+    State(pool): State<PgPool>,
+    req: Request<axum::body::Body>,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    let auth_header = req
+        .headers()
+        .get("Authorization")
+        .and_then(|value| value.to_str().ok())
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    let token = auth_header
+        .strip_prefix("Bearer ")
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    // Verify token
+    let _claims = crate::services::auth::verify_token(token)
+        .map_err(|_| StatusCode::UNAUTHORIZED)?;
+
+    Ok(next.run(req).await)
 }

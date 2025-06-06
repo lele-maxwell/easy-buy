@@ -1,9 +1,11 @@
-use api::{auth::auth_routes, category::category_routes, products::product_routes, user::user_routes};
 use axum::{
     routing::{get, post},
     Router,
 };
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{CorsLayer, Any};
+use axum::http::{header, Method};
+use std::net::SocketAddr;
+use axum::serve;
 
 mod api;
 mod config;
@@ -18,7 +20,7 @@ use sqlx::postgres::PgPoolOptions;
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().ok();
+    dotenv::dotenv().ok();
 
     // Setup DB pool
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL not set");
@@ -29,25 +31,28 @@ async fn main() {
         .expect("Failed to connect to database");
 
     // Define app routes
-    let app = Router::new() 
+    let cors = CorsLayer::new()
+        .allow_origin("http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap())
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS])
+        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION])
+        .allow_credentials(true)
+        .expose_headers([header::AUTHORIZATION]);
+
+    let app = Router::new()
         .route("/", get(|| async { "Easy Buy API is running 🚀" }))
-        // .route("/api/auth/register", post(register_user))
-        //.route("/api/auth/login", post(login_user))
-        .nest("/api/auth", auth_routes())
-        .nest("/api/user", user_routes())
-        .nest("/api/product", product_routes(pool.clone()))
-        .nest("/api/category", category_routes())
-        .layer(CorsLayer::permissive()) 
-        .with_state(pool); // pass state
+        .nest("/api", Router::new()
+            .nest("/auth", api::auth::auth_routes())
+            .merge(api::user::user_routes())
+            .merge(api::products::product_routes(pool.clone()))
+            .merge(api::category::category_routes())
+            .merge(api::cart::cart_routes())
+        )
+        .layer(cors)
+        .with_state(pool);
 
-    // Start the server
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000")
-        .await
-        .expect("Failed to bind to address");
-
-    println!("🚀 Server listening on http://localhost:8000");
-
-    axum::serve(listener, app)
-        .await
-        .expect("Server failed to start");
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8000));
+    println!("🚀 Server listening on http://{}", addr);
+    
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    serve(listener, app).await.unwrap();
 }

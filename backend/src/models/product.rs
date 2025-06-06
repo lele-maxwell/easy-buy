@@ -2,6 +2,7 @@ use chrono::NaiveDateTime;
 use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
 use uuid::Uuid;
+use bigdecimal::BigDecimal;
 
 
 
@@ -10,7 +11,7 @@ use uuid::Uuid;
 pub struct CreateProduct {
     pub name: String,
     pub description: Option<String>,
-    pub price: f64,
+    pub price: BigDecimal,
     pub stock_quantity: i32,
 }
 
@@ -20,7 +21,7 @@ pub struct Product {
     pub id: Uuid,
     pub name: String,
     pub description: Option<String>,
-    pub price: f64,
+    pub price: BigDecimal,
     pub stock_quantity: i32,
     pub created_at: Option<NaiveDateTime>,
     pub updated_at: Option<NaiveDateTime>,
@@ -33,7 +34,7 @@ pub struct Product {
 pub struct UpdateProduct {
     pub name: Option<String>,
     pub description: Option<String>,
-    pub price: Option<f64>,
+    pub price: Option<BigDecimal>,
     pub stock_quantity: Option<i32>,
     pub deleted_at: Option<chrono::NaiveDateTime>,
 }
@@ -43,8 +44,8 @@ pub struct UpdateProduct {
 pub struct ProductQueryParams {
     pub query: Option<String>,
     pub category_id: Option<Uuid>,
-    pub min_price: Option<f64>,
-    pub max_price: Option<f64>,
+    pub min_price: Option<BigDecimal>,
+    pub max_price: Option<BigDecimal>,
     pub in_stock: Option<bool>,
     pub page: Option<u32>,
     pub limit: Option<u32>,
