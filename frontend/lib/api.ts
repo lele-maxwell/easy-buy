@@ -1,15 +1,22 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
+
+// Ensure we have a valid API URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
+    // Add timeout and withCredentials
+    timeout: 10000,
+    withCredentials: true
 });
 
 // Add a request interceptor to add the auth token
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const token = Cookies.get('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
@@ -20,9 +27,20 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        console.error('API Error:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message,
+            baseURL: API_URL
+        });
+
         if (error.response?.status === 401) {
             // Handle unauthorized access
-            localStorage.removeItem('token');
+            Cookies.remove('token');
+            Cookies.remove('userData');
+            Cookies.remove('userRole');
             window.location.href = '/auth/login';
         }
         return Promise.reject(error);
@@ -31,8 +49,67 @@ api.interceptors.response.use(
 
 export const auth = {
     login: async (email: string, password: string) => {
-        const response = await api.post('/api/auth/login', { email, password });
-        return response.data;
+        try {
+            console.log('Making login request to:', `${API_URL}/api/auth/login`);
+            const response = await api.post('/api/auth/login', { email, password });
+            console.log('Raw login response:', response);
+            
+            // Check if response has the expected structure
+            if (!response.data) {
+                throw new Error('Invalid response format: No data received');
+            }
+
+            // Ensure the response has the required fields
+            const { token, user } = response.data;
+            if (!token) {
+                throw new Error('Invalid response format: No token received');
+            }
+            if (!user) {
+                throw new Error('Invalid response format: No user data received');
+            }
+
+            // Ensure user object has required fields
+            if (!user.id && !user._id) {
+                throw new Error('Invalid user data: Missing user ID');
+            }
+            if (!user.email) {
+                throw new Error('Invalid user data: Missing email');
+            }
+            if (!user.name) {
+                throw new Error('Invalid user data: Missing name');
+            }
+
+            return {
+                token,
+                user: {
+                    id: user.id || user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role || 'user'
+                }
+            };
+        } catch (error: any) {
+            console.error('Login API error:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+                stack: error.stack,
+                baseURL: API_URL
+            });
+            
+            // Provide more specific error messages
+            if (error.response?.status === 401) {
+                throw new Error('Invalid email or password');
+            } else if (error.response?.status === 404) {
+                throw new Error('Login service not found');
+            } else if (error.response?.status === 500) {
+                throw new Error('Server error occurred');
+            } else if (!error.response) {
+                throw new Error('Network error: Could not connect to server. Please check if the server is running at ' + API_URL);
+            }
+            
+            throw error;
+        }
     },
     register: async (name: string, email: string, password: string) => {
         const response = await api.post('/api/auth/register', { name, email, password });
@@ -43,28 +120,26 @@ export const auth = {
         return response.data;
     },
     changePassword: async (currentPassword: string, newPassword: string) => {
-        const response = await api.put('/api/auth/password', { current_password: currentPassword, new_password: newPassword });
+        const response = await api.put('/api/auth/password', { 
+            current_password: currentPassword, 
+            new_password: newPassword 
+        });
         return response.data;
     },
     verifyToken: async () => {
         try {
-            console.log('Verifying token...');
             const response = await api.get('/api/auth/verify', { 
                 timeout: 5000,
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${Cookies.get('token')}`
                 }
             });
-            console.log('Token verification response:', response.data);
             return {
                 isValid: true,
                 user: response.data
             };
         } catch (error) {
             console.error('Token verification error:', error);
-            if (error.response) {
-                console.error('Error response:', error.response.data);
-            }
             return {
                 isValid: false,
                 error: error.response?.data || 'Token verification failed'

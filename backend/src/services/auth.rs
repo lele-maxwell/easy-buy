@@ -92,6 +92,7 @@ pub struct LoginRequest {
 #[derive(Serialize)]
 pub struct LoginResponse {
     pub token: String,
+    pub user: RegisterResponse,
 }
 
 pub async fn login_user(
@@ -121,7 +122,7 @@ pub async fn login_user(
         let claims = Claims {
             sub: user.id.to_string(),
             exp: 10000000000000, // Example expiration
-            role: user.role,
+            role: user.role.clone(),
         };
         let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
@@ -132,7 +133,15 @@ pub async fn login_user(
         )
         .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Error generating token".to_string()))?;
 
-        Ok(Json(LoginResponse { token }))
+        Ok(Json(LoginResponse { 
+            token,
+            user: RegisterResponse {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+            }
+        }))
     } else {
         Err((StatusCode::NOT_FOUND, "User not found".to_string()))
     }
