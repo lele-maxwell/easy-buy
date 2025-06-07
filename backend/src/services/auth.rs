@@ -99,6 +99,7 @@ pub async fn login_user(
     State(pool): State<PgPool>,
     Json(payload): Json<LoginRequest>,
 ) -> Result<Json<LoginResponse>, (StatusCode, String)>  {
+    println!("Login attempt for email: {}", payload.email);
 
     let user = sqlx::query_as::<_, User>(
         "SELECT * FROM users WHERE email = $1"
@@ -106,18 +107,29 @@ pub async fn login_user(
     .bind(&payload.email)
     .fetch_optional(&pool)
     .await
-    .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))?;
+    .map_err(|e| {
+        println!("Database error during login: {:?}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string())
+    })?;
 
     if let Some(user) = user {
+        println!("User found, verifying password");
         // Parse the stored hash from the database
         let parsed_hash = PasswordHash::new(&user.password_hash)
-            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Failed to parse password hash".to_string()))?;
+            .map_err(|e| {
+                println!("Failed to parse password hash: {:?}", e);
+                (StatusCode::INTERNAL_SERVER_ERROR, "Failed to parse password hash".to_string())
+            })?;
 
         // Verify the password against the stored hash
         Argon2::default()
             .verify_password(payload.password.as_bytes(), &parsed_hash)
-            .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid password".to_string()))?;
+            .map_err(|e| {
+                println!("Password verification failed: {:?}", e);
+                (StatusCode::BAD_REQUEST, "Invalid password".to_string())
+            })?;
 
+        println!("Password verified, generating token");
         // Generate JWT token
         let claims = Claims {
             sub: user.id.to_string(),
@@ -131,8 +143,12 @@ pub async fn login_user(
             &claims,
             &EncodingKey::from_secret(secret.as_bytes()),
         )
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Error generating token".to_string()))?;
+        .map_err(|e| {
+            println!("Token generation failed: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Error generating token".to_string())
+        })?;
 
+        println!("Login successful for user: {}", user.email);
         Ok(Json(LoginResponse { 
             token,
             user: RegisterResponse {
@@ -143,6 +159,7 @@ pub async fn login_user(
             }
         }))
     } else {
+        println!("User not found for email: {}", payload.email);
         Err((StatusCode::NOT_FOUND, "User not found".to_string()))
     }
 }

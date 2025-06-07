@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
 
   // Handle admin routes
   if (isAdminRoute) {
-    if (!token || userRole !== 'admin') {
+    if (!token || userRole?.toLowerCase() !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }

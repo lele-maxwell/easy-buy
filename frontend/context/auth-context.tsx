@@ -9,7 +9,7 @@ interface User {
   id: string
   name: string
   email: string
-  role: 'admin' | 'user'
+  role: string  // Allow any string, we'll handle case-insensitive comparison
 }
 
 interface AuthContextType {
@@ -32,31 +32,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = async () => {
       const token = Cookies.get('token')
       const userData = Cookies.get('userData')
+      const userRole = Cookies.get('userRole')
 
       if (token && userData) {
         try {
           // Verify token with backend
           const verificationResult = await auth.verifyToken()
           if (verificationResult.isValid) {
-            setUser(JSON.parse(userData))
+            const parsedUserData = JSON.parse(userData)
+            setUser(parsedUserData)
+            
+            // If we're on an admin route but not an admin, redirect
+            if (window.location.pathname.startsWith('/admin')) {
+              if (userRole?.toLowerCase() !== 'admin') {
+                console.log('Not an admin, redirecting to home')
+                router.replace('/')
+              } else {
+                console.log('Admin verified, staying on admin page')
+              }
+            }
           } else {
+            console.log('Token invalid, clearing auth data')
             // Token is invalid, clear everything
             Cookies.remove('token')
             Cookies.remove('userData')
             Cookies.remove('userRole')
+            setUser(null)
+            router.replace('/auth/login')
           }
         } catch (error) {
           console.error('Token verification error:', error)
           Cookies.remove('token')
           Cookies.remove('userData')
           Cookies.remove('userRole')
+          setUser(null)
+          router.replace('/auth/login')
+        }
+      } else {
+        // No token or user data, redirect to login if on protected route
+        if (window.location.pathname.startsWith('/admin')) {
+          router.replace('/auth/login')
         }
       }
       setLoading(false)
     }
 
     initializeAuth()
-  }, [])
+  }, [router])
 
   const login = async (email: string, password: string) => {
     try {
@@ -72,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // The API layer now ensures the response has the correct structure
       const { token, user: userData } = response
+      console.log('User data from login:', userData)
 
       // Store token and user data in cookies with 7-day expiry
       Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' })
@@ -79,7 +102,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       Cookies.set('userRole', userData.role, { expires: 7, secure: true, sameSite: 'strict' })
 
       setUser(userData)
-      router.push('/dashboard')
+      
+      // Redirect based on user role
+      console.log('User role:', userData.role)
+      if (userData.role.toLowerCase() === 'admin') {
+        console.log('Redirecting to admin dashboard')
+        // Force a hard navigation to ensure the page reloads
+        window.location.href = '/admin'
+      } else {
+        console.log('Redirecting to user dashboard')
+        window.location.href = '/dashboard'
+      }
     } catch (error: any) {
       console.error('Login error details:', {
         message: error.message,

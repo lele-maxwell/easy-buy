@@ -16,15 +16,32 @@ import {
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      router.push('/')
+    console.log('Admin page - Current user:', user)
+    console.log('Admin page - Loading state:', loading)
+    
+    if (!loading) {
+      if (!user) {
+        console.log('No user found, redirecting to login')
+        router.replace('/auth/login')
+      } else if (user.role.toLowerCase() !== 'admin') {
+        console.log('User is not admin, redirecting to home')
+        router.replace('/')
+      }
     }
-  }, [user, router])
+  }, [user, loading, router])
 
-  if (!user || user.role !== 'admin') {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+      </div>
+    )
+  }
+
+  if (!user || user.role.toLowerCase() !== 'admin') {
     return null
   }
 

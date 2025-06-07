@@ -160,7 +160,7 @@ export default function CategoryBrowse() {
   }, [])
 
   if (loading) {
-    return (
+  return (
       <motion.div
         variants={container}
         initial="hidden"
@@ -268,7 +268,7 @@ export default function CategoryBrowse() {
                     <span className="text-slate-600">Average Rating:</span>
                     <span className="font-semibold text-emerald-600">{categoryDetails[category.id as keyof typeof categoryDetails].avgRating} ★</span>
                   </div>
-                </div>
+    </div>
               </motion.div>
             )}
           </AnimatePresence>
