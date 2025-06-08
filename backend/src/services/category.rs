@@ -38,7 +38,7 @@ pub async fn list_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::Error
         r#"
         SELECT id, name, description, created_at, updated_at
         FROM categories
-        WHERE deleted_at IS NULL
+        WHERE is_deleted = false
         ORDER BY created_at DESC 
         "#
     )
