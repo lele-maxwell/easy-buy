@@ -31,7 +31,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const response = await api.get(`/api/category/get/${params.id}`)
+        const response = await api.get(`/api/${params.id}`)
         const category: Category = response.data
         setFormData({
           name: category.name,
@@ -54,7 +54,7 @@ export default function EditCategoryPage({ params }: { params: { id: string } })
     setIsSaving(true)
 
     try {
-      await api.put(`/api/category/update/${params.id}`, formData)
+      await api.put(`/api/update/${params.id}`, formData)
       toast.success("Category updated successfully")
       router.push("/admin/categories")
     } catch (error) {

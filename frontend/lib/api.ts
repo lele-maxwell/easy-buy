@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 // Ensure we have a valid API URL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -181,17 +181,39 @@ export const cart = {
 export const admin = {
     products: {
         create: async (data: any) => {
-            const response = await api.post('/api/admin/products', data);
+            const response = await api.post('/api/product', data);
             return response.data;
         },
         update: async (id: string, data: any) => {
-            const response = await api.put(`/api/admin/products/${id}`, data);
+            const response = await api.put(`/api/product/update/${id}`, data);
             return response.data;
         },
         delete: async (id: string) => {
-            const response = await api.delete(`/api/admin/products/${id}`);
+            const response = await api.delete(`/api/product/delete/${id}`);
             return response.data;
         },
+    },
+    categories: {
+        list: async () => {
+            const response = await api.get('/api/list');
+            return response.data;
+        },
+        create: async (data: any) => {
+            const response = await api.post('/api/create', data);
+            return response.data;
+        },
+        update: async (id: string, data: any) => {
+            const response = await api.patch(`/api/update/${id}`, data);
+            return response.data;
+        },
+        delete: async (id: string) => {
+            const response = await api.delete(`/api/delete/hard/${id}`);
+            return response.data;
+        },
+        softDelete: async (id: string) => {
+            const response = await api.patch(`/api/delete/soft/${id}`);
+            return response.data;
+        }
     },
     users: {
         list: async () => {
