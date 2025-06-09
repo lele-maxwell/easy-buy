@@ -1,1 +1,0 @@
-fn(axum::extract::State<Pool<Postgres>>, axum::extract::Path<Uuid>, {type error}) -> impl futures::Future<Output = Result<axum::Json<Vec<std::string::String>>, axum::http::StatusCode>> {upload_image}
