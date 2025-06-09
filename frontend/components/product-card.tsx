@@ -14,6 +14,7 @@ interface Product {
   stock_quantity: number
   created_at: string | null
   updated_at: string | null
+  image_url?: string | null
 }
 
 interface ProductCardProps {
@@ -50,46 +51,44 @@ export default function ProductCard({ product }: ProductCardProps) {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="absolute inset-0 flex items-center justify-center text-slate-500">
-              No Image
-            </div>
+            {product.image_url ? (
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-slate-500">
+                No Image
+              </div>
+            )}
           </motion.div>
         </Link>
         <CardContent className="p-4">
           <Link href={`/products/${product.id}`}>
-            <motion.h3 
-              className="text-lg font-semibold mb-2 hover:text-primary transition-colors"
-              whileHover={{ x: 5 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              {product.name}
-            </motion.h3>
+            {product.name}
           </Link>
-          <p className="text-sm text-slate-400 line-clamp-2">
-            {product.description || 'No description available'}
+          <p className="text-sm text-slate-500">
+            {product.description}
           </p>
         </CardContent>
         <CardFooter className="p-4 pt-0">
-          <div className="w-full flex items-center justify-between">
-            <motion.span 
-              className="text-lg font-bold text-emerald-400"
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 400 }}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-slate-500">
+              {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+            </div>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={(e) => {
+                e.preventDefault()
+                addToCart(product)
+              }}
             >
-              ${product.price.toFixed(2)}
-            </motion.span>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                onClick={() => addToCart(product)}
-                disabled={product.stock_quantity === 0}
-                className="bg-emerald-500 hover:bg-emerald-600 transition-colors duration-300"
-              >
-                {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-              </Button>
-            </motion.div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25c0.966 0 1.897.187 2.786.53V16.5h-5.37c-1.087 0-2.018.187-2.907.531V14.25z" />
+              </svg>
+            </Button>
           </div>
         </CardFooter>
       </Card>

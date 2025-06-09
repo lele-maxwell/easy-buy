@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-import { api } from "@/lib/api"
+import { admin } from "@/lib/api"
 
 interface Category {
   id: string
@@ -33,9 +33,9 @@ export default function NewProductPage() {
     const fetchCategories = async () => {
       try {
         console.log('Fetching categories...')
-        const response = await api.get("/api/category/list")
-        console.log('Categories response:', response.data)
-        setCategories(response.data)
+        const response = await admin.categories.list()
+        console.log('Categories response:', response)
+        setCategories(response)
       } catch (error) {
         console.error("Failed to fetch categories:", error)
         toast.error("Failed to fetch categories")
@@ -50,7 +50,7 @@ export default function NewProductPage() {
     setIsLoading(true)
 
     try {
-      const response = await api.post("/api/product", {
+      const response = await admin.products.create({
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
@@ -58,7 +58,7 @@ export default function NewProductPage() {
         category_id: formData.category_id,
       })
 
-      if (response.status === 201) {
+      if (response) {
         toast.success("Product created successfully")
         router.push("/admin/products")
       }

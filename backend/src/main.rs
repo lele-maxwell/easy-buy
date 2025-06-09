@@ -43,7 +43,7 @@ async fn main() {
         .nest("/api", Router::new()
             .nest("/auth", api::auth::auth_routes())
             .merge(api::user::user_routes())
-            .merge(api::products::product_routes(pool.clone()))
+            .nest("/products", api::products::product_routes(pool.clone()))
             .merge(api::category::category_routes())
             .merge(api::cart::cart_routes())
         )

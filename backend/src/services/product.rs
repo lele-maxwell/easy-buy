@@ -2,6 +2,9 @@ use crate::models::product::{CreateProduct, Product, UpdateProduct};
 use sqlx::PgPool;
 use uuid::Uuid;
 use chrono::Utc;
+use bigdecimal::BigDecimal;
+use chrono::NaiveDateTime;
+use std::str::FromStr;
 
 pub async fn create_product(pool: &PgPool, new_product: CreateProduct) -> Result<Product, sqlx::Error> {
     let created_at = Utc::now().naive_utc();
@@ -10,9 +13,9 @@ pub async fn create_product(pool: &PgPool, new_product: CreateProduct) -> Result
     let rec = sqlx::query_as_unchecked!(
         Product,
         r#"
-        INSERT INTO products (id, name, description, price, stock_quantity, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING id, name, description, price, stock_quantity, created_at, updated_at
+        INSERT INTO products (id, name, description, price, stock_quantity, created_at, updated_at, category_id, deleted_at, images)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING id, name, description, price, stock_quantity, category_id, created_at, updated_at, deleted_at, images
         "#,
         Uuid::new_v4(), 
         new_product.name, 
@@ -20,7 +23,10 @@ pub async fn create_product(pool: &PgPool, new_product: CreateProduct) -> Result
         new_product.price,
         new_product.stock_quantity,
         created_at,
-        updated_at
+        updated_at,
+        new_product.category_id,
+        None as Option<NaiveDateTime>,
+        None as Option<Vec<String>>
     )
     .fetch_one(pool)
     .await?;
@@ -37,24 +43,21 @@ pub async fn update_product(
 ) -> Result<Product, sqlx::Error> {
     let current_time = Utc::now().naive_utc();
 
-    let product = sqlx::query_as!(
+    let product = sqlx::query_as_unchecked!(
         Product,
         r#"
         UPDATE products
-        SET
-            name = COALESCE($1, name),
-            description = COALESCE($2, description),
-            price = COALESCE($3, price),
-            stock_quantity = COALESCE($4, stock_quantity),
-            updated_at = $5
-        WHERE id = $6
-        RETURNING id, name, description, price, stock_quantity, created_at, updated_at
+        SET name = $1, description = $2, price = $3, stock_quantity = $4, category_id = $5, deleted_at = $6, images = $7
+        WHERE id = $8
+        RETURNING id, name, description, price, stock_quantity, category_id, created_at, updated_at, deleted_at, images
         "#,
         update.name,
         update.description,
-        update.price,
+        update.price.map(|p| BigDecimal::from_str(&p.to_string()).unwrap()),
         update.stock_quantity,
-        current_time,
+        update.category_id,
+        update.deleted_at,
+        update.images.as_deref(),
         id
     )
     .fetch_one(pool)

@@ -6,6 +6,9 @@ use axum::{
 };
 use sqlx::{FromRow, PgPool, QueryBuilder};
 use uuid::Uuid;
+use std::path::PathBuf;
+use tokio::fs;
+use axum_extra::extract::Multipart;
 
 use crate::{models::product::{Product, ProductQueryParams, UpdateProduct}, services::product::{create_product, delete_product, soft_delete_product, update_product}};
 use crate::models::product::CreateProduct;
@@ -19,6 +22,8 @@ pub fn product_routes(pool: PgPool) -> Router<PgPool> {
         .route("/update/:id", put(update_product_handler))    // PUT /api/product/:id
         .route("/delete/:id", delete(delete_product_handler)) // DELETE /api/product/:id
         .route("/soft-delete/:id", delete(soft_delete_product_handler)) // DELETE /api/product/soft/:id
+        .route("/upload-image", post(upload_product_image))
+        .route("/delete-image/:product_id/:image_url", delete(delete_product_image))
         .with_state(pool)
 }
 
@@ -26,14 +31,14 @@ pub fn product_routes(pool: PgPool) -> Router<PgPool> {
 pub async fn create_product_handler(
     State(pool): State<PgPool>,
     Json(payload): Json<CreateProduct>,
-) -> Result<(StatusCode, Json<Product>), (StatusCode, String)> {
-    match create_product(&pool, payload).await {
-        Ok(product) => Ok((StatusCode::CREATED, Json(product))),
-        Err(err) => {
-            eprintln!("❌ Failed to create product: {:?}", err);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Product creation failed".to_string()))
-        }
-    }
+) -> Result<Json<Product>, (StatusCode, String)> {
+    let product = create_product(&pool, payload)
+        .await
+        .map_err(|e| {
+            eprintln!("❌ Failed to create product: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create product".to_string())
+        })?;
+    Ok(Json(product))
 }
 
 // to get product from data base
@@ -155,6 +160,58 @@ pub async fn search_products_handler(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)))?;
 
     Ok(Json(products))
+}
+
+#[axum::debug_handler]
+pub async fn upload_product_image(
+    Path(product_id): Path<Uuid>,
+    State(pool): State<PgPool>,
+    mut multipart: Multipart,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let mut image_url = None;
+    while let Some(field) = multipart.next_field().await.map_err(|_| StatusCode::BAD_REQUEST)? {
+        let name = field.name().unwrap_or_default();
+        if name == "image" {
+            let data = field.bytes().await.map_err(|_| StatusCode::BAD_REQUEST)?;
+            let filename = format!("{}.jpg", Uuid::new_v4());
+            let upload_dir = PathBuf::from("uploads/products");
+            fs::create_dir_all(&upload_dir).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            let filepath = upload_dir.join(&filename);
+            fs::write(&filepath, data).await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            image_url = Some(format!("/uploads/products/{}", filename));
+        }
+    }
+    match image_url {
+        Some(url) => {
+            // Append the new image URL to the product's images array
+            let result = sqlx::query!(
+                "UPDATE products SET images = array_append(images, $1) WHERE id = $2 RETURNING images",
+                url,
+                product_id
+            )
+            .fetch_one(&pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            Ok(Json(serde_json::json!({ "images": result.images })))
+        },
+        None => Err(StatusCode::BAD_REQUEST),
+    }
+}
+
+// Add a new endpoint to delete an image from a product
+pub async fn delete_product_image(
+    Path((product_id, image_url)): Path<(Uuid, String)>,
+    State(pool): State<PgPool>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let result = sqlx::query!(
+        "UPDATE products SET images = array_remove(images, $1) WHERE id = $2 RETURNING images",
+        image_url,
+        product_id
+    )
+    .fetch_one(&pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(serde_json::json!({ "images": result.images })))
 }
 
 

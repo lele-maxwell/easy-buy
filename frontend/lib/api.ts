@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 // Ensure we have a valid API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
-const api = axios.create({
+export const api = axios.create({
     baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
@@ -181,15 +181,15 @@ export const cart = {
 export const admin = {
     products: {
         create: async (data: any) => {
-            const response = await api.post('/api/product', data);
+            const response = await api.post('/api/products', data);
             return response.data;
         },
         update: async (id: string, data: any) => {
-            const response = await api.put(`/api/product/update/${id}`, data);
+            const response = await api.put(`/api/products/update/${id}`, data);
             return response.data;
         },
         delete: async (id: string) => {
-            const response = await api.delete(`/api/product/delete/${id}`);
+            const response = await api.delete(`/api/products/delete/${id}`);
             return response.data;
         },
     },

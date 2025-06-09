@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Plus, MoreHorizontal, Edit, Trash2, Archive } from "lucide-react"
 import { toast } from "sonner"
-import { api } from "@/lib/api"
+import { admin } from "@/lib/api"
 
 interface Category {
   id: string
@@ -29,8 +29,8 @@ export default function CategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await api.get("/api/category/list")
-      setCategories(response.data)
+      const response = await admin.categories.list()
+      setCategories(response)
     } catch (error) {
       console.error("Failed to fetch categories:", error)
       toast.error("Failed to fetch categories")
@@ -47,7 +47,7 @@ export default function CategoriesPage() {
     if (!confirm("Are you sure you want to delete this category?")) return
 
     try {
-      await api.delete(`/api/category/delete/hard/${id}`)
+      await admin.categories.delete(id)
       toast.success("Category deleted successfully")
       fetchCategories()
     } catch (error) {
@@ -60,7 +60,7 @@ export default function CategoriesPage() {
     if (!confirm("Are you sure you want to soft delete this category?")) return
 
     try {
-      await api.patch(`/api/category/delete/soft/${id}`)
+      await admin.categories.softDelete(id)
       toast.success("Category soft deleted successfully")
       fetchCategories()
     } catch (error) {

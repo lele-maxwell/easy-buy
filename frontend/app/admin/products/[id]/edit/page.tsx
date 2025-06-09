@@ -21,6 +21,8 @@ interface Product {
   created_at: string
   updated_at: string
   deleted_at: string | null
+  image_url: string | null
+  images?: string[]
 }
 
 interface Category {
@@ -40,7 +42,10 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     price: "",
     stock_quantity: "",
     category_id: "",
+    image_url: "",
+    images: [] as string[],
   })
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,7 +63,10 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           price: product.price.toString(),
           stock_quantity: product.stock_quantity.toString(),
           category_id: product.category_id,
+          image_url: product.image_url || "",
+          images: product.images || [],
         })
+        setImagePreviews(product.images || [])
       } catch (error) {
         console.error("Failed to fetch data:", error)
         toast.error("Failed to fetch product data")
@@ -82,6 +90,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         price: parseFloat(formData.price),
         stock_quantity: parseInt(formData.stock_quantity),
         category_id: formData.category_id,
+        image_url: formData.image_url,
+        images: formData.images,
       })
 
       if (response.status === 200) {
@@ -103,6 +113,39 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   const handleCategoryChange = (value: string) => {
     setFormData((prev) => ({ ...prev, category_id: value }))
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+    const formData = new FormData()
+    for (let i = 0; i < files.length; i++) {
+      formData.append('image', files[i])
+    }
+    try {
+      const response = await fetch('/api/product/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await response.json()
+      setImagePreviews(prev => [...prev, ...data.images])
+      setFormData(prev => ({ ...prev, images: [...prev.images, ...data.images] }))
+    } catch (error) {
+      console.error('Error uploading images:', error)
+    }
+  }
+
+  const handleDeleteImage = async (imageUrl: string) => {
+    try {
+      const response = await fetch(`/api/product/delete-image/${params.id}/${encodeURIComponent(imageUrl)}`, {
+        method: 'DELETE',
+      })
+      const data = await response.json()
+      setImagePreviews(data.images)
+      setFormData(prev => ({ ...prev, images: data.images }))
+    } catch (error) {
+      console.error('Error deleting image:', error)
+    }
   }
 
   if (isLoading) {
@@ -201,6 +244,30 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-white">Product Image</Label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+                className="mt-1 block w-full"
+              />
+              <div className="flex flex-wrap gap-2 mt-2">
+                {imagePreviews.map((url, index) => (
+                  <div key={index} className="relative">
+                    <img src={url} alt={`Preview ${index + 1}`} className="h-20 w-20 object-cover rounded" />
+                    <button
+                      onClick={() => handleDeleteImage(url)}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="flex justify-end space-x-4">

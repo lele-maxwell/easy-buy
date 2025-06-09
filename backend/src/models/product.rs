@@ -13,6 +13,7 @@ pub struct CreateProduct {
     pub description: Option<String>,
     pub price: BigDecimal,
     pub stock_quantity: i32,
+    pub category_id: Option<Uuid>,
 }
 
 
@@ -23,8 +24,11 @@ pub struct Product {
     pub description: Option<String>,
     pub price: BigDecimal,
     pub stock_quantity: i32,
-    pub created_at: Option<NaiveDateTime>,
+    pub category_id: Option<Uuid>,
+    pub created_at: NaiveDateTime,
     pub updated_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<NaiveDateTime>,
+    pub images: Option<Vec<String>>,
 }
 
 
@@ -34,9 +38,11 @@ pub struct Product {
 pub struct UpdateProduct {
     pub name: Option<String>,
     pub description: Option<String>,
-    pub price: Option<BigDecimal>,
+    pub price: Option<f64>,
     pub stock_quantity: Option<i32>,
-    pub deleted_at: Option<chrono::NaiveDateTime>,
+    pub category_id: Option<Uuid>,
+    pub deleted_at: Option<NaiveDateTime>,
+    pub images: Option<Vec<String>>,
 }
 
 // search product 

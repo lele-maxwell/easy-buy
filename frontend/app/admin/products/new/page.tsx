@@ -32,7 +32,7 @@ export default function NewProductPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/api/category/list")
+        const response = await api.get("/api/list")
         setCategories(response.data)
       } catch (error) {
         console.error("Failed to fetch categories:", error)
@@ -48,21 +48,29 @@ export default function NewProductPage() {
     setIsLoading(true)
 
     try {
-      const response = await api.post("/api/product", {
+      const response = await api.post("/api/products", {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
         stock_quantity: parseInt(formData.stock_quantity),
-        category_id: formData.category_id,
+        category_id: formData.category_id || null,
       })
 
-      if (response.status === 201) {
-        toast.success("Product created successfully")
+      toast.success("Product created successfully", {
+        duration: 3000, // Show for 3 seconds
+        position: "top-center",
+      })
+      
+      // Wait a bit before redirecting to ensure the toast is visible
+      setTimeout(() => {
         router.push("/admin/products")
-      }
+      }, 1000)
     } catch (error) {
       console.error("Failed to create product:", error)
-      toast.error("Failed to create product")
+      toast.error("Failed to create product", {
+        duration: 3000,
+        position: "top-center",
+      })
     } finally {
       setIsLoading(false)
     }
