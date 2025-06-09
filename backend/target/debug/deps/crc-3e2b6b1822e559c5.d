@@ -1,0 +1,12 @@
+/home/maxwell/projects/projects/easy-buy/backend/target/debug/deps/libcrc-3e2b6b1822e559c5.rmeta: /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/lib.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc128.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc16.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc32.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc64.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc8.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/table.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/util.rs
+
+/home/maxwell/projects/projects/easy-buy/backend/target/debug/deps/crc-3e2b6b1822e559c5.d: /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/lib.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc128.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc16.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc32.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc64.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc8.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/table.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/util.rs
+
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/lib.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc128.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc16.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc32.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc64.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/crc8.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/table.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc-3.3.0/src/util.rs:

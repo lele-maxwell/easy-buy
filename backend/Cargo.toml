@@ -22,3 +22,4 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 bigdecimal = { version = "0.3", features = ["serde"] }
 chrono = { version = "0.4", features = ["serde"] }
+axum-extra = "0.9"

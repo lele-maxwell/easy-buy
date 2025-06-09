@@ -1,0 +1,9 @@
+/home/maxwell/projects/projects/easy-buy/backend/target/debug/deps/libfutures_lite-bf12ee6f7b0c28b6.rmeta: /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/lib.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/future.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/prelude.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/stream.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/io.rs
+
+/home/maxwell/projects/projects/easy-buy/backend/target/debug/deps/futures_lite-bf12ee6f7b0c28b6.d: /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/lib.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/future.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/prelude.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/stream.rs /home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/io.rs
+
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/lib.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/future.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/prelude.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/stream.rs:
+/home/maxwell/.cargo/registry/src/index.crates.io-6f17d22bba15001f/futures-lite-2.6.0/src/io.rs:
