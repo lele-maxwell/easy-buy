@@ -24,7 +24,7 @@ export function ImageUpload({ productId, onUploadComplete, isPrimary = false }: 
         formData.append('is_primary', isPrimary.toString());
 
         try {
-            await api.post('/api/product-images', formData, {
+            await api.post('/api/products/upload-image', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
+import { ProductImageUpload, ImageGallery } from "@/components/admin/product-image-upload"
 
 interface Category {
   id: string
@@ -20,7 +21,10 @@ interface Category {
 export default function NewProductPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
+  const [productId, setProductId] = useState<string | null>(null)
+  const [images, setImages] = useState<string[]>([])
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -56,15 +60,11 @@ export default function NewProductPage() {
         category_id: formData.category_id || null,
       })
 
-      toast.success("Product created successfully", {
-        duration: 3000, // Show for 3 seconds
+      setProductId(response.data.id)
+      toast.success("Product created successfully! You can now upload images.", {
+        duration: 5000,
         position: "top-center",
       })
-      
-      // Wait a bit before redirecting to ensure the toast is visible
-      setTimeout(() => {
-        router.push("/admin/products")
-      }, 1000)
     } catch (error) {
       console.error("Failed to create product:", error)
       toast.error("Failed to create product", {
@@ -83,6 +83,27 @@ export default function NewProductPage() {
 
   const handleCategoryChange = (value: string) => {
     setFormData((prev) => ({ ...prev, category_id: value }))
+  }
+
+  const handleImageUploadComplete = (newImageUrl: string) => {
+    setImages(prev => [...prev, newImageUrl])
+    toast.success("Image uploaded successfully")
+  }
+
+  const handleImageUploadError = (error: string) => {
+    toast.error(error)
+  }
+
+  const handleImageDelete = async (imageUrl: string) => {
+    setIsDeleting(true)
+    try {
+      setImages(prevImages => prevImages.filter(img => img !== imageUrl))
+    } catch (error) {
+      console.error('Failed to delete image:', error)
+      toast.error('Failed to delete image')
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -174,6 +195,24 @@ export default function NewProductPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Image Upload Section */}
+            {productId && (
+              <div className="space-y-4">
+                <Label className="text-white">Product Images</Label>
+                <ImageGallery 
+                  images={images} 
+                  productId={productId}
+                  onDelete={handleImageDelete}
+                  isDeleting={isDeleting}
+                />
+                <ProductImageUpload
+                  productId={productId}
+                  onUploadComplete={handleImageUploadComplete}
+                  onUploadError={handleImageUploadError}
+                />
+              </div>
+            )}
 
             <div className="flex justify-end space-x-4">
               <Button

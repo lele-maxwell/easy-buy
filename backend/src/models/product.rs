@@ -1,8 +1,7 @@
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
 use uuid::Uuid;
-use bigdecimal::BigDecimal;
 
 
 
@@ -11,7 +10,7 @@ use bigdecimal::BigDecimal;
 pub struct CreateProduct {
     pub name: String,
     pub description: Option<String>,
-    pub price: BigDecimal,
+    pub price: f64,
     pub stock_quantity: i32,
     pub category_id: Option<Uuid>,
 }
@@ -22,12 +21,12 @@ pub struct Product {
     pub id: Uuid,
     pub name: String,
     pub description: Option<String>,
-    pub price: BigDecimal,
+    pub price: f64,
     pub stock_quantity: i32,
     pub category_id: Option<Uuid>,
-    pub created_at: NaiveDateTime,
-    pub updated_at: Option<NaiveDateTime>,
-    pub deleted_at: Option<NaiveDateTime>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub images: Option<Vec<String>>,
 }
 
@@ -41,7 +40,7 @@ pub struct UpdateProduct {
     pub price: Option<f64>,
     pub stock_quantity: Option<i32>,
     pub category_id: Option<Uuid>,
-    pub deleted_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub images: Option<Vec<String>>,
 }
 
@@ -50,8 +49,8 @@ pub struct UpdateProduct {
 pub struct ProductQueryParams {
     pub query: Option<String>,
     pub category_id: Option<Uuid>,
-    pub min_price: Option<BigDecimal>,
-    pub max_price: Option<BigDecimal>,
+    pub min_price: Option<f64>,
+    pub max_price: Option<f64>,
     pub in_stock: Option<bool>,
     pub page: Option<u32>,
     pub limit: Option<u32>,

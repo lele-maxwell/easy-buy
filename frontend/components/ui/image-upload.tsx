@@ -80,19 +80,22 @@ export function ImageUpload({ productId, onUploadComplete, onUploadError }: Imag
 }
 
 interface ImageGalleryProps {
-  images: string[]
+  images?: string[]
   onDelete?: (imageUrl: string) => void
   isDeleting?: boolean
 }
 
-export function ImageGallery({ images, onDelete, isDeleting }: ImageGalleryProps) {
+export function ImageGallery({ images = [], onDelete, isDeleting }: ImageGalleryProps) {
   const handleDelete = async (imageUrl: string) => {
     if (!onDelete) return
     if (!confirm("Are you sure you want to delete this image?")) return
     onDelete(imageUrl)
   }
 
-  if (images.length === 0) {
+  // Ensure images is always an array
+  const imageArray = Array.isArray(images) ? images : []
+
+  if (imageArray.length === 0) {
     return (
       <div className="flex items-center justify-center h-32 border-2 border-dashed border-slate-600 rounded-lg">
         <div className="text-center text-slate-400">
@@ -105,7 +108,7 @@ export function ImageGallery({ images, onDelete, isDeleting }: ImageGalleryProps
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {images.map((image, index) => (
+      {imageArray.map((image, index) => (
         <div key={index} className="relative group aspect-square">
           <img
             src={image}
