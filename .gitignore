@@ -11,6 +11,8 @@ sqlx-data.json
 *.swo
 .DS_Store
 Thumbs.db
+backend/uploads/
+backend/target/
 
 # Frontend-specific
 /node_modules/
@@ -30,3 +32,6 @@ yarn-error.log*
 .vscode/
 .DS_Store
 Thumbs.db
+frontend/.next/
+frontend/app/
+frontend/next-env.d.ts
