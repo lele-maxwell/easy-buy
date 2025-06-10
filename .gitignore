@@ -47,6 +47,8 @@ Cargo.lock
 .DS_Store
 Thumbs.db
 desktop.ini
+backend/uploads/
+backend/target/
 
 # Logs
 logs/
@@ -111,3 +113,6 @@ next-env.d.ts
 .Trashes
 ehthumbs.db
 Thumbs.db
+frontend/.next/
+frontend/app/
+frontend/next-env.d.ts
