@@ -1,1 +1,0 @@
-fn(axum::extract::Path<Uuid>, State<Pool<Postgres>>, axum::Json<{type error}>) -> impl std::future::Future<Output = Result<axum::Json<std::string::String>, (axum::http::StatusCode, std::string::String)>> {update_category_handler}

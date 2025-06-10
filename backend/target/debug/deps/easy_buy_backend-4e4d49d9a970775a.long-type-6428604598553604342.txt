@@ -1,1 +1,0 @@
-fn(State<{type error}>) -> impl std::future::Future<Output = Result<axum::Json<impl IntoResponse>, axum::http::StatusCode>> {get_cart}

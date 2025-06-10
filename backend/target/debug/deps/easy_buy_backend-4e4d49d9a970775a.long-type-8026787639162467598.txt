@@ -1,1 +1,0 @@
-fn(axum::extract::State<{type error}>, axum::extract::Path<Uuid>) -> impl std::future::Future<Output = Result<axum::Json<impl Serialize>, (axum::http::StatusCode, std::string::String)>> {api::cart::remove_from_cart}
