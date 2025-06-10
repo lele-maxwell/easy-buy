@@ -1,97 +1,105 @@
 "use client"
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { useCart } from '@/context/cart-context'
-
-interface Product {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  stock_quantity: number
-  created_at: string | null
-  updated_at: string | null
-  image_url?: string | null
-}
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ShoppingCart } from "lucide-react"
+import { useCart } from "@/context/cart-context"
 
 interface ProductCardProps {
-  product: Product
+  id: string
+  name: string
+  description: string
+  price: number
+  stock_quantity: number
+  images: string[]
 }
 
-export function ProductCardSkeleton() {
-  return (
-    <Card className="overflow-hidden">
-      <div className="aspect-square bg-slate-700/50 animate-pulse" />
-      <CardContent className="p-4">
-        <div className="h-4 bg-slate-700/50 rounded w-3/4 mb-2 animate-pulse" />
-        <div className="h-4 bg-slate-700/50 rounded w-1/2 animate-pulse" />
-      </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <div className="h-8 bg-slate-700/50 rounded w-full animate-pulse" />
-      </CardFooter>
-    </Card>
-  )
-}
-
-export default function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({
+  id,
+  name,
+  description,
+  price,
+  stock_quantity,
+  images
+}: ProductCardProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addToCart } = useCart()
 
+  const getImageUrl = (url: string) => {
+    if (url.startsWith('http')) {
+      return url
+    }
+    return `http://localhost:8000${url}`
+  }
+
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name,
+      price,
+      quantity: 1,
+      image: images[0] || ''
+    })
+  }
+
   return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ type: "spring", stiffness: 300 }}
-    >
-      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-slate-700/50 hover:border-primary/50 bg-slate-800/50">
-        <Link href={`/products/${product.id}`}>
-          <motion.div 
-            className="aspect-square bg-slate-700/50 relative overflow-hidden"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
-            {product.image_url ? (
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="w-full h-full object-cover"
+    <Card className="overflow-hidden bg-slate-800 border-slate-700 hover:border-emerald-500 transition-all duration-300 group">
+      <Link href={`/products/${id}`}>
+        <div className="relative aspect-square overflow-hidden bg-slate-900/50">
+          {images && images.length > 0 ? (
+            <>
+              <Image
+                src={getImageUrl(images[currentImageIndex])}
+                alt={name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-slate-500">
-                No Image
-              </div>
-            )}
-          </motion.div>
-        </Link>
-        <CardContent className="p-4">
-          <Link href={`/products/${product.id}`}>
-            {product.name}
-          </Link>
-          <p className="text-sm text-slate-500">
-            {product.description}
-          </p>
-        </CardContent>
-        <CardFooter className="p-4 pt-0">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-slate-500">
-              {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+              {images.length > 1 && (
+                <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+                  {images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setCurrentImageIndex(index)
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentImageIndex
+                          ? 'bg-emerald-500 w-4'
+                          : 'bg-slate-400/50 hover:bg-slate-300/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-slate-900/50">
+              <ShoppingCart className="w-12 h-12 text-slate-600" />
             </div>
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={(e) => {
-                e.preventDefault()
-                addToCart(product)
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25c0.966 0 1.897.187 2.786.53V16.5h-5.37c-1.087 0-2.018.187-2.907.531V14.25z" />
-              </svg>
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
-    </motion.div>
+          )}
+        </div>
+      </Link>
+      <CardContent className="p-4">
+        <Link href={`/products/${id}`} className="block">
+          <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1">{name}</h3>
+          <p className="text-sm text-slate-400 line-clamp-2 mb-3">{description}</p>
+        </Link>
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold text-emerald-500">${price.toFixed(2)}</span>
+          <Button
+            onClick={handleAddToCart}
+            disabled={stock_quantity === 0}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          >
+            {stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
