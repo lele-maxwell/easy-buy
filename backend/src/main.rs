@@ -6,6 +6,7 @@ use tower_http::cors::{CorsLayer, Any};
 use axum::http::{header, Method};
 use std::net::SocketAddr;
 use axum::serve;
+use tower_http::services::ServeDir;
 
 mod api;
 mod config;
@@ -22,6 +23,9 @@ use sqlx::postgres::PgPoolOptions;
 async fn main() {
     dotenv::dotenv().ok();
 
+    // Initialize tracing
+    tracing_subscriber::fmt::init();
+
     // Setup DB pool
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL not set");
     let pool = PgPoolOptions::new()
@@ -34,7 +38,16 @@ async fn main() {
     let cors = CorsLayer::new()
         .allow_origin("http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap())
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS])
-        .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION])
+        .allow_headers([
+            header::CONTENT_TYPE,
+            header::AUTHORIZATION,
+            header::ACCEPT,
+            header::ORIGIN,
+            header::ACCESS_CONTROL_REQUEST_METHOD,
+            header::ACCESS_CONTROL_REQUEST_HEADERS,
+            "Content-Length".parse().unwrap(),
+            "Content-Range".parse().unwrap(),
+        ])
         .allow_credentials(true)
         .expose_headers([header::AUTHORIZATION]);
 
@@ -43,10 +56,11 @@ async fn main() {
         .nest("/api", Router::new()
             .nest("/auth", api::auth::auth_routes())
             .merge(api::user::user_routes())
-            .merge(api::products::product_routes(pool.clone()))
+            .nest("/products", api::products::product_routes(pool.clone()))
             .merge(api::category::category_routes())
             .merge(api::cart::cart_routes())
         )
+        .nest_service("/uploads", ServeDir::new("uploads"))
         .layer(cors)
         .with_state(pool);
 

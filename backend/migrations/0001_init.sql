@@ -17,7 +17,7 @@ CREATE TABLE products (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    price NUMERIC(10, 2) NOT NULL,
+    price DOUBLE PRECISION NOT NULL,
     stock_quantity INT NOT NULL,
     category VARCHAR(100),
     image VARCHAR(255),

@@ -7,6 +7,7 @@ pub struct Category {
     pub id: Uuid,
     pub name: String,
     pub description: Option<String>, 
+    pub is_deleted: Option<bool>,
     pub created_at: Option<chrono::NaiveDateTime>,
     pub updated_at: Option<chrono::NaiveDateTime>,
     

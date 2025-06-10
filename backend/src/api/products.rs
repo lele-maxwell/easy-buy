@@ -3,11 +3,18 @@ use axum::{
     http::StatusCode,
     routing::{delete, get, post, put},
     Json, Router,
+    response::IntoResponse,
 };
 use sqlx::{FromRow, PgPool, QueryBuilder};
 use uuid::Uuid;
+use std::path::PathBuf;
+use tokio::fs;
+use axum_extra::extract::Multipart;
+use serde::{Deserialize, Serialize};
+use std::io::Write;
+use std::path::Path as StdPath;
 
-use crate::{models::product::{Product, ProductQueryParams, UpdateProduct}, services::product::{create_product, delete_product, soft_delete_product, update_product}};
+use crate::{models::product::{Product, ProductQueryParams, UpdateProduct}, services::product::{create_product, delete_product, soft_delete_product, update_product, add_product_image}};
 use crate::models::product::CreateProduct;
 
 pub fn product_routes(pool: PgPool) -> Router<PgPool> {
@@ -19,6 +26,8 @@ pub fn product_routes(pool: PgPool) -> Router<PgPool> {
         .route("/update/:id", put(update_product_handler))    // PUT /api/product/:id
         .route("/delete/:id", delete(delete_product_handler)) // DELETE /api/product/:id
         .route("/soft-delete/:id", delete(soft_delete_product_handler)) // DELETE /api/product/soft/:id
+        .route("/upload-image", post(upload_product_image))
+        .route("/delete-image/:product_id/:image_url", delete(delete_product_image))
         .with_state(pool)
 }
 
@@ -26,14 +35,14 @@ pub fn product_routes(pool: PgPool) -> Router<PgPool> {
 pub async fn create_product_handler(
     State(pool): State<PgPool>,
     Json(payload): Json<CreateProduct>,
-) -> Result<(StatusCode, Json<Product>), (StatusCode, String)> {
-    match create_product(&pool, payload).await {
-        Ok(product) => Ok((StatusCode::CREATED, Json(product))),
-        Err(err) => {
-            eprintln!("❌ Failed to create product: {:?}", err);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Product creation failed".to_string()))
-        }
-    }
+) -> Result<Json<Product>, (StatusCode, String)> {
+    let product = create_product(&pool, payload)
+        .await
+        .map_err(|e| {
+            eprintln!("❌ Failed to create product: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create product".to_string())
+        })?;
+    Ok(Json(product))
 }
 
 // to get product from data base
@@ -155,6 +164,105 @@ pub async fn search_products_handler(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {}", e)))?;
 
     Ok(Json(products))
+}
+
+pub async fn upload_product_image(
+    State(pool): State<PgPool>,
+    mut multipart: Multipart,
+) -> impl IntoResponse {
+    let mut image_url = None;
+    let mut product_id = None;
+
+    while let Some(field) = multipart.next_field().await.unwrap() {
+        let name = field.name().unwrap().to_string();
+        
+        if name == "image" {
+            let data = field.bytes().await.unwrap();
+            let file_name = format!("{}.jpg", Uuid::new_v4());
+            let upload_dir = StdPath::new("uploads");
+            
+            // Create uploads directory if it doesn't exist
+            if !upload_dir.exists() {
+                if let Err(e) = fs::create_dir_all(upload_dir).await {
+                    eprintln!("Failed to create uploads directory: {}", e);
+                    return (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create uploads directory").into_response();
+                }
+            }
+            
+            let file_path = upload_dir.join(&file_name);
+            match std::fs::File::create(&file_path) {
+                Ok(mut file) => {
+                    if let Err(e) = file.write_all(&data) {
+                        eprintln!("Failed to write image file: {}", e);
+                        return (StatusCode::INTERNAL_SERVER_ERROR, "Failed to save image").into_response();
+                    }
+                    image_url = Some(format!("/uploads/{}", file_name));
+                }
+                Err(e) => {
+                    eprintln!("Failed to create image file: {}", e);
+                    return (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create image file").into_response();
+                }
+            }
+        } else if name == "product_id" {
+            match field.text().await {
+                Ok(data) => {
+                    match Uuid::parse_str(&data) {
+                        Ok(id) => product_id = Some(id),
+                        Err(e) => {
+                            eprintln!("Invalid product ID: {}", e);
+                            return (StatusCode::BAD_REQUEST, "Invalid product ID").into_response();
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Failed to read product ID: {}", e);
+                    return (StatusCode::BAD_REQUEST, "Failed to read product ID").into_response();
+                }
+            }
+        }
+    }
+
+    match (image_url, product_id) {
+        (Some(url), Some(id)) => {
+            let url_clone = url.clone();
+            match add_product_image(&pool, id, url).await {
+                Ok(_) => (StatusCode::OK, Json(serde_json::json!({ "image_url": url_clone }))).into_response(),
+                Err(e) => {
+                    eprintln!("Failed to save image URL to database: {}", e);
+                    (StatusCode::INTERNAL_SERVER_ERROR, "Failed to save image URL").into_response()
+                }
+            }
+        }
+        _ => (StatusCode::BAD_REQUEST, "Missing image or product_id").into_response(),
+    }
+}
+
+// Add a new endpoint to delete an image from a product
+pub async fn delete_product_image(
+    Path((product_id, image_url)): Path<(Uuid, String)>,
+    State(pool): State<PgPool>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    // First, try to delete the file from the filesystem
+    let file_path = format!("uploads/{}", image_url);
+    if let Err(e) = tokio::fs::remove_file(&file_path).await {
+        eprintln!("Failed to delete image file: {}", e);
+        // Continue with database update even if file deletion fails
+    }
+
+    // Update the database to remove the image URL
+    let result = sqlx::query!(
+        "UPDATE products SET images = array_remove(images, $1) WHERE id = $2 RETURNING images",
+        format!("/uploads/{}", image_url),
+        product_id
+    )
+    .fetch_one(&pool)
+    .await
+    .map_err(|e| {
+        eprintln!("Failed to update database: {}", e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+
+    Ok(Json(serde_json::json!({ "images": result.images })))
 }
 
 

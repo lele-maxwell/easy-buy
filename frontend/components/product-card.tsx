@@ -1,98 +1,105 @@
 "use client"
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { useCart } from '@/context/cart-context'
-
-interface Product {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  stock_quantity: number
-  created_at: string | null
-  updated_at: string | null
-}
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ShoppingCart } from "lucide-react"
+import { useCart } from "@/context/cart-context"
 
 interface ProductCardProps {
-  product: Product
+  id: string
+  name: string
+  description: string
+  price: number
+  stock_quantity: number
+  images: string[]
 }
 
-export function ProductCardSkeleton() {
-  return (
-    <Card className="overflow-hidden">
-      <div className="aspect-square bg-slate-700/50 animate-pulse" />
-      <CardContent className="p-4">
-        <div className="h-4 bg-slate-700/50 rounded w-3/4 mb-2 animate-pulse" />
-        <div className="h-4 bg-slate-700/50 rounded w-1/2 animate-pulse" />
-      </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <div className="h-8 bg-slate-700/50 rounded w-full animate-pulse" />
-      </CardFooter>
-    </Card>
-  )
-}
-
-export default function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({
+  id,
+  name,
+  description,
+  price,
+  stock_quantity,
+  images
+}: ProductCardProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addToCart } = useCart()
 
+  const getImageUrl = (url: string) => {
+    if (url.startsWith('http')) {
+      return url
+    }
+    return `http://localhost:8000${url}`
+  }
+
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name,
+      price,
+      quantity: 1,
+      image: images[0] || ''
+    })
+  }
+
   return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ type: "spring", stiffness: 300 }}
-    >
-      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-slate-700/50 hover:border-primary/50 bg-slate-800/50">
-        <Link href={`/products/${product.id}`}>
-          <motion.div 
-            className="aspect-square bg-slate-700/50 relative overflow-hidden"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="absolute inset-0 flex items-center justify-center text-slate-500">
-              No Image
+    <Card className="overflow-hidden bg-slate-800 border-slate-700 hover:border-emerald-500 transition-all duration-300 group">
+      <Link href={`/products/${id}`}>
+        <div className="relative aspect-square overflow-hidden bg-slate-900/50">
+          {images && images.length > 0 ? (
+            <>
+              <Image
+                src={getImageUrl(images[currentImageIndex])}
+                alt={name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+              {images.length > 1 && (
+                <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+                  {images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setCurrentImageIndex(index)
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentImageIndex
+                          ? 'bg-emerald-500 w-4'
+                          : 'bg-slate-400/50 hover:bg-slate-300/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-slate-900/50">
+              <ShoppingCart className="w-12 h-12 text-slate-600" />
             </div>
-          </motion.div>
+          )}
+        </div>
+      </Link>
+      <CardContent className="p-4">
+        <Link href={`/products/${id}`} className="block">
+          <h3 className="text-lg font-semibold text-white mb-2 line-clamp-1">{name}</h3>
+          <p className="text-sm text-slate-400 line-clamp-2 mb-3">{description}</p>
         </Link>
-        <CardContent className="p-4">
-          <Link href={`/products/${product.id}`}>
-            <motion.h3 
-              className="text-lg font-semibold mb-2 hover:text-primary transition-colors"
-              whileHover={{ x: 5 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              {product.name}
-            </motion.h3>
-          </Link>
-          <p className="text-sm text-slate-400 line-clamp-2">
-            {product.description || 'No description available'}
-          </p>
-        </CardContent>
-        <CardFooter className="p-4 pt-0">
-          <div className="w-full flex items-center justify-between">
-            <motion.span 
-              className="text-lg font-bold text-emerald-400"
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              ${product.price.toFixed(2)}
-            </motion.span>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                onClick={() => addToCart(product)}
-                disabled={product.stock_quantity === 0}
-                className="bg-emerald-500 hover:bg-emerald-600 transition-colors duration-300"
-              >
-                {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-              </Button>
-            </motion.div>
-          </div>
-        </CardFooter>
-      </Card>
-    </motion.div>
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold text-emerald-500">${price.toFixed(2)}</span>
+          <Button
+            onClick={handleAddToCart}
+            disabled={stock_quantity === 0}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          >
+            {stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

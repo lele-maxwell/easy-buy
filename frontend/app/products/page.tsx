@@ -7,6 +7,7 @@ import ProductFilters from "@/components/product-filters"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { products } from "@/lib/api"
+import Image from "next/image"
 
 interface Product {
   id: string
@@ -16,6 +17,8 @@ interface Product {
   stock_quantity: number
   created_at: string | null
   updated_at: string | null
+  image_url?: string | null
+  images?: string[] | null
 }
 
 interface Filters {
@@ -119,7 +122,15 @@ export default function ProductsPage() {
         <div className="md:col-span-3">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product}>
+                <Image
+                  src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"}
+                  alt={product.name}
+                  width={400}
+                  height={400}
+                  className="w-full h-full object-cover"
+                />
+              </ProductCard>
             ))}
           </div>
           {filteredProducts.length === 0 && (

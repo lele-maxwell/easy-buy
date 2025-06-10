@@ -40,7 +40,7 @@ where
 }
 
 pub async fn require_admin(
-    State(pool): State<PgPool>,
+    State(_pool): State<PgPool>,
     req: Request<axum::body::Body>,
     next: Next,
 ) -> Result<Response, StatusCode> {
@@ -66,7 +66,7 @@ pub async fn require_admin(
 }
 
 pub async fn require_auth(
-    State(pool): State<PgPool>,
+    State(_pool): State<PgPool>,
     req: Request<axum::body::Body>,
     next: Next,
 ) -> Result<Response, StatusCode> {
