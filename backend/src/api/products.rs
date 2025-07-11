@@ -232,7 +232,7 @@ pub async fn upload_product_image(
                     (StatusCode::INTERNAL_SERVER_ERROR, "Failed to save image URL").into_response()
                 }
             }
-        }
+        } 
         _ => (StatusCode::BAD_REQUEST, "Missing image or product_id").into_response(),
     }
 }
