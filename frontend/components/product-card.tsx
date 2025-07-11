@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ShoppingCart, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react"
+import { ShoppingCart, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Info } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 
 interface ProductCardProps {
@@ -118,19 +118,18 @@ export function ProductCard({
           </div>
         </Link>
         <CardContent className="p-2 pt-3">
-          <div className="flex items-center justify-between mt-1">
-            <h3 className="text-base font-semibold text-white mb-1 leading-tight flex items-center gap-1">
-              {name}
-              <button
-                type="button"
-                aria-label={descOpen ? "Hide description" : "Show description"}
-                className="ml-1 text-slate-400 hover:text-emerald-500 focus:text-emerald-500 transition-colors"
-                onClick={e => { e.stopPropagation(); setDescOpen(v => !v); }}
-              >
-                {descOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-            </h3>
-            <span className="text-base font-bold text-emerald-500">${price ? price.toFixed(2) : '0.00'}</span>
+          <h3 className="text-base font-semibold text-white mb-1 leading-tight line-clamp-1">{name}</h3>
+          <div className="flex items-center gap-2 mb-1">
+            <button
+              type="button"
+              aria-label={descOpen ? "Hide details" : "Show details"}
+              className={`flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${descOpen ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-700 text-slate-200 border-slate-600 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500'}`}
+              onClick={e => { e.stopPropagation(); setDescOpen(v => !v); }}
+            >
+              <Info className="w-4 h-4" />
+              {descOpen ? 'Hide Details' : 'Details'}
+            </button>
+            <span className="text-base font-bold text-emerald-500 ml-auto">${price ? price.toFixed(2) : '0.00'}</span>
           </div>
           {descOpen && (
             <p className="text-xs text-slate-400 mt-1 leading-snug transition-all duration-200 ease-in-out">{description}</p>
