@@ -13,7 +13,7 @@ import { useState } from 'react'
 export default function Navbar() {
   const { user, logout } = useAuth()
   const pathname = usePathname()
-  const { items } = useCart()
+  const { items, clearCart } = useCart()
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -90,33 +90,33 @@ export default function Navbar() {
 
             {/* Desktop Auth Buttons */}
             <div className="flex items-center space-x-4">
+              <Link href="/cart">
+                <Button variant="ghost" size="icon" className="relative text-slate-300 hover:text-white w-10 h-10">
+                  <ShoppingCart className="w-5 h-5" />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {itemCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
               {user ? (
-                <div className="flex items-center space-x-4">
+                <>
                   <Link href="/dashboard">
                     <Button variant="ghost" className="text-slate-300 hover:text-white text-sm sm:text-base px-4 py-2">
                       Dashboard
                     </Button>
                   </Link>
                   <Button 
-                    onClick={logout}
+                    onClick={() => { clearCart(); logout(); }}
                     variant="outline"
                     className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white text-sm sm:text-base px-4 py-2"
                   >
                     Logout
                   </Button>
-                </div>
+                </>
               ) : (
-                <div className="flex items-center space-x-4">
-                  <Link href="/cart">
-                    <Button variant="ghost" size="icon" className="relative text-slate-300 hover:text-white w-10 h-10">
-                      <ShoppingCart className="w-5 h-5" />
-                      {itemCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                          {itemCount}
-                        </span>
-                      )}
-                    </Button>
-                  </Link>
+                <>
                   <Link href="/auth/login">
                     <Button variant="ghost" className="text-slate-300 hover:text-white text-sm sm:text-base px-4 py-2">
                       <User className="w-5 h-5 mr-2" />
@@ -128,7 +128,7 @@ export default function Navbar() {
                       Register
                     </Button>
                   </Link>
-                </div>
+                </>
               )}
             </div>
           </div>
@@ -207,8 +207,9 @@ export default function Navbar() {
                     </Link>
                     <Button 
                       onClick={() => {
-                        logout()
-                        setIsMobileMenuOpen(false)
+                        clearCart();
+                        logout();
+                        setIsMobileMenuOpen(false);
                       }}
                       variant="outline"
                       className="w-full justify-start border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"

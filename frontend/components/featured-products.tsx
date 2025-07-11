@@ -13,83 +13,8 @@ interface Product {
   stock_quantity: number
   created_at: string | null
   updated_at: string | null
+  images?: string[] | null
 }
-
-// Mock data for featured products
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Premium Wireless Headphones',
-    description: 'High-quality wireless headphones with noise cancellation',
-    price: 199.99,
-    stock_quantity: 15,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '2',
-    name: 'Smart Watch Series 5',
-    description: 'Latest smartwatch with health monitoring features',
-    price: 299.99,
-    stock_quantity: 10,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '3',
-    name: 'Ultra HD 4K Monitor',
-    description: '32-inch 4K monitor with HDR support',
-    price: 499.99,
-    stock_quantity: 8,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '4',
-    name: 'Mechanical Gaming Keyboard',
-    description: 'RGB mechanical keyboard with customizable keys',
-    price: 129.99,
-    stock_quantity: 20,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '5',
-    name: 'Wireless Gaming Mouse',
-    description: 'High-precision wireless gaming mouse with RGB lighting',
-    price: 79.99,
-    stock_quantity: 25,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '6',
-    name: 'Portable SSD 1TB',
-    description: 'Ultra-fast portable SSD with USB-C interface',
-    price: 149.99,
-    stock_quantity: 12,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '7',
-    name: 'Bluetooth Speaker',
-    description: 'Waterproof portable Bluetooth speaker with 20-hour battery life',
-    price: 89.99,
-    stock_quantity: 18,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: '8',
-    name: 'Wireless Charging Pad',
-    description: 'Fast wireless charging pad compatible with all Qi devices',
-    price: 39.99,
-    stock_quantity: 30,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  }
-]
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -118,7 +43,7 @@ export default function FeaturedProducts() {
         console.log('Fetching products...')
         
         // Add headers to ensure proper content type
-        const response = await api.get('/api/product', {
+        const response = await api.get('/api/products', {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -142,10 +67,7 @@ export default function FeaturedProducts() {
           headers: err.response?.headers,
           config: err.config
         })
-        
-        // Use mock data when API call fails
-        console.log('Using mock data due to API error')
-        setProducts(mockProducts)
+        setError('Failed to load products. Please try again later.')
         setLoading(false)
       }
     }
@@ -183,11 +105,17 @@ export default function FeaturedProducts() {
     )
   }
 
-  if (products.length === 0) {
-    // Use mock data when no products are available
-    setProducts(mockProducts)
+  if (products.length === 0 && !loading) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">No products found.</p>
+        <p className="text-sm text-slate-400 mt-2">Please check back later.</p>
+      </div>
+    )
   }
 
+  // Before rendering the products
+  console.log('products in render:', products);
   return (
     <motion.div
       variants={container}
@@ -197,7 +125,11 @@ export default function FeaturedProducts() {
     >
       {products.map((product) => (
         <motion.div key={product.id} variants={item}>
-          <ProductCard product={product} />
+          <ProductCard
+            {...product}
+            description={product.description || ''}
+            images={product.images || []}
+          />
         </motion.div>
       ))}
     </motion.div>

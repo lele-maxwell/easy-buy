@@ -30,7 +30,7 @@ interface Filters {
 
 export default function ProductsPage() {
   const router = useRouter()
-  const [products, setProducts] = useState<Product[]>([])
+  const [productsList, setProductsList] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState<Filters>({
@@ -44,9 +44,9 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       try {
         const data = await products.list();
-        setProducts(data);
+        setProductsList(data);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching products:', error, error?.response);
         setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);
@@ -56,7 +56,7 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = productsList.filter((product) => {
     if (filters.minPrice && product.price < parseFloat(filters.minPrice)) {
       return false;
     }
@@ -122,15 +122,12 @@ export default function ProductsPage() {
         <div className="md:col-span-3">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product}>
-                <Image
-                  src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg"}
-                  alt={product.name}
-                  width={400}
-                  height={400}
-                  className="w-full h-full object-cover"
-                />
-              </ProductCard>
+              <ProductCard
+                key={product.id}
+                {...product}
+                description={product.description || ''}
+                images={product.images || []}
+              />
             ))}
           </div>
           {filteredProducts.length === 0 && (
