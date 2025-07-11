@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react"
+import { ShoppingCart, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 
 interface ProductCardProps {
@@ -28,6 +28,7 @@ export function ProductCard({
   console.log('Rendering ProductCard:', { id, name, description, price, stock_quantity, images });
   const safeImages = images || [];
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [descOpen, setDescOpen] = useState(false)
   const { addItem } = useCart()
 
   const getImageUrl = (url: string) => {
@@ -117,12 +118,24 @@ export function ProductCard({
           </div>
         </Link>
         <CardContent className="p-2 pt-3">
-          <Link href={`/products/${id}`} className="block">
-            <h3 className="text-base font-semibold text-white mb-1 line-clamp-1 leading-tight">{name}</h3>
-            <p className="text-xs text-slate-400 line-clamp-2 mb-1 leading-snug">{description}</p>
-          </Link>
           <div className="flex items-center justify-between mt-1">
+            <h3 className="text-base font-semibold text-white mb-1 leading-tight flex items-center gap-1">
+              {name}
+              <button
+                type="button"
+                aria-label={descOpen ? "Hide description" : "Show description"}
+                className="ml-1 text-slate-400 hover:text-emerald-500 focus:text-emerald-500 transition-colors"
+                onClick={e => { e.stopPropagation(); setDescOpen(v => !v); }}
+              >
+                {descOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+            </h3>
             <span className="text-base font-bold text-emerald-500">${price ? price.toFixed(2) : '0.00'}</span>
+          </div>
+          {descOpen && (
+            <p className="text-xs text-slate-400 mt-1 leading-snug transition-all duration-200 ease-in-out">{description}</p>
+          )}
+          <div className="flex items-center justify-end mt-2">
             <Button
               onClick={handleAddToCart}
               disabled={stock_quantity === 0}
