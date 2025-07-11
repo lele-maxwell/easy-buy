@@ -58,7 +58,7 @@ export function ProductCard({
                   src={getImageUrl(safeImages[currentImageIndex])}
                   alt={name}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover rounded-lg bg-slate-900 transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 {safeImages.length > 1 && (
