@@ -60,7 +60,7 @@ async fn main() {
             .nest("/auth", api::auth::auth_routes())
             .merge(api::user::user_routes(pool.clone()))
             .nest("/products", api::products::product_routes(pool.clone()))
-            .merge(api::category::category_routes())
+            .nest("/category", api::category::category_routes())
             .merge(api::cart::cart_routes())
         )
         .nest_service("/uploads", ServeDir::new("uploads"))
