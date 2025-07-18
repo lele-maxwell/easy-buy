@@ -90,11 +90,11 @@ export default function Navbar() {
 
             {/* Desktop Auth Buttons */}
             <div className="flex items-center space-x-4">
-              <Link href="/cart">
-                <Button variant="ghost" size="icon" className="relative text-slate-300 hover:text-white w-10 h-10">
-                  <ShoppingCart className="w-5 h-5" />
+              <Link href="/cart" className="relative">
+                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+                  <ShoppingCart className="w-6 h-6" />
                   {itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs rounded-full px-1.5 py-0.5">
                       {itemCount}
                     </span>
                   )}
