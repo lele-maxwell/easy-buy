@@ -81,7 +81,7 @@ export default function FeaturedProducts() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8"
       >
         {[...Array(8)].map((_, i) => (
           <motion.div key={i} variants={item}>
@@ -121,7 +121,7 @@ export default function FeaturedProducts() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8"
     >
       {products.map((product) => (
         <motion.div key={product.id} variants={item}>

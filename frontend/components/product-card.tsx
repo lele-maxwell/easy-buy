@@ -50,9 +50,9 @@ export function ProductCard({
 
   return (
     <>
-      <Card className="overflow-hidden bg-slate-800 border-slate-700 hover:border-emerald-500 transition-all duration-300 group flex flex-col h-full">
+      <Card className="overflow-hidden bg-slate-800 border-slate-700 hover:border-emerald-500 transition-all duration-300 group flex flex-col h-full w-full max-w-2xl mx-auto min-h-[520px]">
         <Link href={`/products/${id}`} className="flex-1 flex flex-col">
-          <div className="relative aspect-[5/6] flex-grow overflow-hidden bg-slate-900/50">
+          <div className="relative aspect-[4/5] flex-grow overflow-hidden bg-slate-900/50 min-h-[320px]">
             {safeImages && safeImages.length > 0 ? (
               <>
                 <Image
@@ -117,8 +117,8 @@ export function ProductCard({
             )}
           </div>
         </Link>
-        <CardContent className="p-2 pt-3 flex-shrink-0" style={{ minHeight: 0 }}>
-          <h3 className="text-base font-semibold text-white mb-1 leading-tight line-clamp-1">{name}</h3>
+        <CardContent className="p-4 pt-5 flex-shrink-0" style={{ minHeight: 0 }}>
+          <h3 className="text-lg font-semibold text-white mb-2 leading-tight line-clamp-1">{name}</h3>
           <div className="flex items-center gap-2 mb-1">
             <button
               type="button"
