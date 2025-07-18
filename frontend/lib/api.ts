@@ -142,10 +142,10 @@ export const auth = {
             console.error('Token verification error:', error);
             return {
                 isValid: false,
-                error: error.response?.data || 'Token verification failed'
+                error: error.response?.data || 'Token verification failed' 
             };
         }
-    },
+    }, 
 };
 
 export const products = {

@@ -43,7 +43,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="flex justify-center w-full mt-8"
+          className="flex justify-center w-full mt-16"
         >
           <Button 
             onClick={handleShopNow}

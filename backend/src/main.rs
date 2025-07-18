@@ -36,7 +36,10 @@ async fn main() {
 
     // Define app routes
     let cors = CorsLayer::new()
-        .allow_origin("http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap())
+        .allow_origin([
+            "http://localhost:3000".parse::<axum::http::HeaderValue>().unwrap(),
+            "http://localhost:3003".parse::<axum::http::HeaderValue>().unwrap(),
+        ])
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS])
         .allow_headers([
             header::CONTENT_TYPE,
