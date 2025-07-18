@@ -203,75 +203,71 @@ export default function CategoryBrowse() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
     >
-      {categories.map((category) => (
-        <motion.div 
-          key={category.id} 
+      {categories.map((category, i) => (
+        <motion.div
+          key={category.id}
           variants={item}
-          className="relative"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1, duration: 0.7, type: 'spring' }}
+          viewport={{ once: true }}
         >
-          <Link href={`/categories/${category.id}`}>
-            <motion.div
-              className="relative h-32 rounded-lg overflow-hidden group cursor-pointer"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+          <div className="relative p-8 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-black/80 border border-slate-800 shadow-2xl rounded-3xl backdrop-blur-md overflow-hidden group transition-transform hover:scale-105 hover:shadow-emerald-700/30 cursor-pointer">
+            {/* Glow/gradient circle behind name */}
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl z-0" />
+            <Link href={`/categories/${category.id}`} className="relative flex flex-col items-center text-center z-10">
+              <h3 className="text-2xl font-extrabold mb-2 text-white tracking-tight drop-shadow">
+                {category.name}
+              </h3>
+              <p className="text-slate-300 text-base leading-relaxed font-medium mb-4">
+                {category.description || 'No description available'}
+              </p>
+            </Link>
+            <motion.button
+              onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
+              className="absolute bottom-4 right-4 px-4 py-2 bg-emerald-500/80 hover:bg-emerald-600/90 text-white rounded-full text-sm font-semibold shadow-lg backdrop-blur-md transition-colors z-20"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-emerald-800" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  {category.name}
-                </h3>
-                <p className="text-emerald-100 text-sm">
-                  {category.description || 'No description available'}
-                </p>
-              </div>
-            </motion.div>
-          </Link>
-          
-          <motion.button
-            onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
-            className="absolute bottom-2 right-2 px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-emerald-100 text-sm font-medium hover:bg-white/20 transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Details
-          </motion.button>
-          
-          <AnimatePresence>
-            {selectedCategory === category.id && (
-              <motion.div
-                variants={popup}
-                initial="hidden"
-                animate="show"
-                exit="exit"
-                className="absolute z-10 w-full mt-2 bg-white rounded-lg shadow-lg p-4"
-              >
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Total Products:</span>
-                    <span className="font-semibold text-emerald-600">{categoryDetails[category.id as keyof typeof categoryDetails].totalProducts}</span>
+              Details
+            </motion.button>
+            <AnimatePresence>
+              {selectedCategory === category.id && categoryDetails[category.id as keyof typeof categoryDetails] && (
+                <motion.div
+                  variants={popup}
+                  initial="hidden"
+                  animate="show"
+                  exit="exit"
+                  className="absolute z-30 w-full mt-2 bg-white rounded-lg shadow-lg p-4 left-0"
+                >
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">Total Products:</span>
+                      <span className="font-semibold text-emerald-600">{categoryDetails[category.id as keyof typeof categoryDetails].totalProducts}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-600">Top Selling:</span>
+                      <ul className="mt-1 space-y-1">
+                        {categoryDetails[category.id as keyof typeof categoryDetails].topSelling.map((item, index) => (
+                          <li key={index} className="text-sm text-slate-700">• {item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">New Arrivals:</span>
+                      <span className="font-semibold text-emerald-600">{categoryDetails[category.id as keyof typeof categoryDetails].newArrivals}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">Average Rating:</span>
+                      <span className="font-semibold text-emerald-600">{categoryDetails[category.id as keyof typeof categoryDetails].avgRating} ★</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-slate-600">Top Selling:</span>
-                    <ul className="mt-1 space-y-1">
-                      {categoryDetails[category.id as keyof typeof categoryDetails].topSelling.map((item, index) => (
-                        <li key={index} className="text-sm text-slate-700">• {item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">New Arrivals:</span>
-                    <span className="font-semibold text-emerald-600">{categoryDetails[category.id as keyof typeof categoryDetails].newArrivals}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Average Rating:</span>
-                    <span className="font-semibold text-emerald-600">{categoryDetails[category.id as keyof typeof categoryDetails].avgRating} ★</span>
-                  </div>
-    </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
       ))}
     </motion.div>
