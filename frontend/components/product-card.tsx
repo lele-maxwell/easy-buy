@@ -115,7 +115,7 @@ export function ProductCard({
                 <ShoppingCart className="w-12 h-12 text-slate-600" />
               </div>
             )}
-          </div>
+            </div>
         </Link>
         <CardContent className="p-4 pt-5 flex-shrink-0" style={{ minHeight: 0 }}>
           <h3 className="text-lg font-semibold text-white mb-2 leading-tight line-clamp-1">{name}</h3>
@@ -141,7 +141,7 @@ export function ProductCard({
               className="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 text-xs h-7 min-w-0"
             >
               {stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-            </Button>
+              </Button>
           </div>
         </CardContent>
       </Card>

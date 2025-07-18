@@ -74,7 +74,7 @@ export default function ProductFilters({ filters, onFiltersChange }: ProductFilt
   }
 
   return (
-    <div className="w-full max-w-xs text-sm">
+    <div className="sticky top-20 z-40 w-full max-w-xs text-sm">
       <Button
         onClick={() => setIsOpen(!isOpen)}
         variant="outline"

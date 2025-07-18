@@ -25,7 +25,7 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm">
+    <nav className="fixed top-0 left-0 w-full z-50 border-b border-earthy-terracotta bg-softblack/90 backdrop-blur-md shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -46,7 +46,7 @@ export default function Navbar() {
               />
             </motion.div>
             <motion.span 
-              className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent"
+              className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald to-gold bg-clip-text text-transparent drop-shadow-lg"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -56,7 +56,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <div className="flex space-x-4 bg-slate-800/50 p-2 rounded-lg">
+            <div className="flex space-x-4 bg-deepnavy/60 p-2 rounded-xl shadow-inner border border-earthy-caramel/30">
               {navItems.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -67,17 +67,17 @@ export default function Navbar() {
                     >
                       <Button
                         variant={isActive ? "default" : "ghost"}
-                        className={`relative px-4 sm:px-6 py-2 sm:py-3 rounded-md transition-all duration-200 text-base sm:text-lg ${
+                        className={`relative px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-200 text-base sm:text-lg font-semibold tracking-wide shadow-none ${
                           isActive 
-                            ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                            : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                            ? 'bg-emerald text-cream shadow-lg shadow-emerald/20 border border-gold' 
+                            : 'text-cream hover:text-emerald hover:bg-emerald/10 border border-transparent'
                         }`}
                       >
                         {item.label}
                         {isActive && (
                           <motion.div
                             layoutId="activeNav"
-                            className="absolute inset-0 rounded-md bg-primary/20"
+                            className="absolute inset-0 rounded-lg bg-emerald/20 border border-gold/40"
                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                           />
                         )}
@@ -91,10 +91,10 @@ export default function Navbar() {
             {/* Desktop Auth Buttons */}
             <div className="flex items-center space-x-4">
               <Link href="/cart" className="relative">
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+                <Button variant="ghost" size="icon" className="text-emerald hover:text-gold bg-deepnavy/40 border border-gold/30">
                   <ShoppingCart className="w-6 h-6" />
                   {itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs rounded-full px-1.5 py-0.5">
+                    <span className="absolute -top-1 -right-1 bg-gold text-softblack text-xs rounded-full px-2 py-0.5 border-2 border-cream shadow-lg">
                       {itemCount}
                     </span>
                   )}
@@ -103,14 +103,14 @@ export default function Navbar() {
               {user ? (
                 <>
                   <Link href="/dashboard">
-                    <Button variant="ghost" className="text-slate-300 hover:text-white text-sm sm:text-base px-4 py-2">
+                    <Button variant="ghost" className="text-cream hover:text-emerald text-sm sm:text-base px-4 py-2">
                       Dashboard
                     </Button>
                   </Link>
                   <Button 
                     onClick={() => { clearCart(); logout(); }}
                     variant="outline"
-                    className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white text-sm sm:text-base px-4 py-2"
+                    className="border-earthy-terracotta text-cream hover:bg-earthy-terracotta/20 hover:text-gold text-sm sm:text-base px-4 py-2"
                   >
                     Logout
                   </Button>
@@ -118,13 +118,13 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link href="/auth/login">
-                    <Button variant="ghost" className="text-slate-300 hover:text-white text-sm sm:text-base px-4 py-2">
+                    <Button variant="ghost" className="text-cream hover:text-emerald text-sm sm:text-base px-4 py-2">
                       <User className="w-5 h-5 mr-2" />
                       Login
                     </Button>
                   </Link>
                   <Link href="/auth/register">
-                    <Button className="bg-primary hover:bg-primary/90 text-sm sm:text-base px-4 py-2">
+                    <Button className="bg-emerald hover:bg-gold text-softblack text-sm sm:text-base px-4 py-2 font-bold border border-gold/40 shadow-lg">
                       Register
                     </Button>
                   </Link>
