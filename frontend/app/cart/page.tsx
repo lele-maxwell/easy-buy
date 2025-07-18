@@ -6,6 +6,12 @@ import { Card } from '@/components/ui/card'
 import { Plus, Minus, X, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 
+function getImageUrl(url: string) {
+  if (!url) return "/placeholder.svg";
+  if (url.startsWith("http")) return url;
+  return `http://localhost:8000${url}`;
+}
+
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCart()
 
@@ -26,7 +32,7 @@ export default function CartPage() {
             <Card key={item.id} className="flex items-center gap-4 p-4 bg-slate-800/80">
               <div className="w-24 h-24 bg-slate-700 rounded-lg overflow-hidden flex-shrink-0">
                 <img
-                  src={item.image}
+                  src={getImageUrl(item.image)}
                   alt={item.name}
                   className="w-full h-full object-cover"
                 />
