@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
@@ -10,43 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Star, Heart, ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useParams } from "next/navigation"
-
-// Mock product data - replace with actual API call
-const getProduct = (id: string) => ({
-  id,
-  name: "Wireless Bluetooth Headphones",
-  description:
-    "Experience premium audio quality with our state-of-the-art wireless Bluetooth headphones. Featuring advanced noise cancellation technology, these headphones deliver crystal-clear sound whether you're listening to music, taking calls, or enjoying podcasts. The ergonomic design ensures comfort during extended use, while the long-lasting battery provides up to 30 hours of continuous playback.",
-  price: 129.99,
-  originalPrice: 199.99,
-  images: [
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-    "/placeholder.svg?height=600&width=600",
-  ],
-  stock: 15,
-  category: "Electronics",
-  rating: 4.5,
-  reviewCount: 128,
-  features: [
-    "Active Noise Cancellation",
-    "30-hour battery life",
-    "Quick charge: 5 min = 3 hours",
-    "Premium comfort fit",
-    "High-quality audio drivers",
-    "Built-in microphone",
-  ],
-  specifications: {
-    Brand: "AudioTech",
-    Model: "AT-WH1000",
-    Connectivity: "Bluetooth 5.0",
-    "Battery Life": "30 hours",
-    "Charging Time": "2 hours",
-    Weight: "250g",
-    Warranty: "2 years",
-  },
-})
+import { products } from "@/lib/api"
 
 // Mock reviews data
 const reviews = [
@@ -74,28 +38,51 @@ const reviews = [
   },
 ]
 
+interface Product {
+  id: string
+  name: string
+  description: string | null
+  price: number
+  stock_quantity: number
+  category: string
+  image_url?: string | null
+  images?: string[]
+  // ...other fields as needed
+}
+
 export default function ProductDetailPage() {
   const params = useParams()
   const { addToCart } = useCart()
+  const [product, setProduct] = useState<Product | null>(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
 
-  const product = getProduct(params.id as string)
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const data = await products.get(params.id as string)
+      setProduct(data)
+    }
+    fetchProduct()
+  }, [params.id])
+
+  if (!product) {
+    return <div className="text-white">Loading...</div>
+  }
 
   const handleAddToCart = () => {
     addToCart({
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.images[0],
+      image: product.images && product.images.length > 0 ? product.images[selectedImage] : "/placeholder.svg",
       quantity,
     })
   }
 
   const handleQuantityChange = (change: number) => {
     const newQuantity = quantity + change
-    if (newQuantity >= 1 && newQuantity <= product.stock) {
+    if (newQuantity >= 1 && newQuantity <= product.stock_quantity) {
       setQuantity(newQuantity)
     }
   }
@@ -111,7 +98,7 @@ export default function ProductDetailPage() {
             <div className="space-y-4">
               <div className="aspect-square bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
                 <Image
-                  src={product.images[selectedImage] || "/placeholder.svg"}
+                  src={product.images && product.images.length > 0 ? product.images[selectedImage] : "/placeholder.svg"}
                   alt={product.name}
                   width={600}
                   height={600}
@@ -120,7 +107,7 @@ export default function ProductDetailPage() {
               </div>
 
               <div className="grid grid-cols-4 gap-2">
-                {product.images.map((image, index) => (
+                {product.images && product.images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
@@ -129,7 +116,7 @@ export default function ProductDetailPage() {
                     }`}
                   >
                     <Image
-                      src={image || "/placeholder.svg"}
+                      src={image}
                       alt={`${product.name} ${index + 1}`}
                       width={150}
                       height={150}
@@ -183,11 +170,11 @@ export default function ProductDetailPage() {
               <div className="flex items-center gap-2">
                 <div
                   className={`w-3 h-3 rounded-full ${
-                    product.stock > 10 ? "bg-emerald-500" : product.stock > 0 ? "bg-yellow-500" : "bg-red-500"
+                    product.stock_quantity > 10 ? "bg-emerald-500" : product.stock_quantity > 0 ? "bg-yellow-500" : "bg-red-500"
                   }`}
                 />
                 <span className="text-slate-300">
-                  {product.stock > 10 ? "In Stock" : product.stock > 0 ? `Only ${product.stock} left` : "Out of Stock"}
+                  {product.stock_quantity > 10 ? "In Stock" : product.stock_quantity > 0 ? `Only ${product.stock_quantity} left` : "Out of Stock"}
                 </span>
               </div>
 
@@ -210,7 +197,7 @@ export default function ProductDetailPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleQuantityChange(1)}
-                      disabled={quantity >= product.stock}
+                      disabled={quantity >= product.stock_quantity}
                       className="text-white hover:bg-slate-700"
                     >
                       <Plus className="w-4 h-4" />
@@ -221,7 +208,7 @@ export default function ProductDetailPage() {
                 <div className="flex gap-4">
                   <Button
                     onClick={handleAddToCart}
-                    disabled={product.stock === 0}
+                    disabled={product.stock_quantity === 0}
                     className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white"
                     size="lg"
                   >

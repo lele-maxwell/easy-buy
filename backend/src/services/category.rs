@@ -13,13 +13,14 @@ pub async fn create_category(pool: &PgPool, data: CreateCategory) -> Result<Cate
     let rec = sqlx::query_as!(
         Category, 
         r#"
-        INSERT INTO categories (id, name, description, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, name, description, created_at, updated_at
+        INSERT INTO categories (id, name, description, is_deleted, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, name, description, is_deleted, created_at, updated_at
         "#,
         id,
         data.name, 
         data.description,
+        false, // is_deleted
         now,
         now
     )
@@ -36,9 +37,9 @@ pub async fn list_categories(pool: &PgPool) -> Result<Vec<Category>, sqlx::Error
     let categories = sqlx::query_as!(
         Category,
         r#"
-        SELECT id, name, description, created_at, updated_at
+        SELECT id, name, description, is_deleted, created_at, updated_at
         FROM categories
-        WHERE deleted_at IS NULL
+        WHERE is_deleted = false
         ORDER BY created_at DESC 
         "#
     )
@@ -79,7 +80,7 @@ pub async fn get_category_by_id_handler(
     let result = sqlx::query_as!(
         Category,
         r#" 
-        SELECT id, name, description, created_at, updated_at
+        SELECT id, name, description, is_deleted, created_at, updated_at
         FROM categories
         WHERE id = $1
         "#,
@@ -133,7 +134,7 @@ pub async fn filter_categories_handler(
     let categories = sqlx::query_as!( 
         Category,
         r#"
-        SELECT id, name, description, created_at, updated_at
+        SELECT id, name, description, is_deleted, created_at, updated_at
         FROM categories
         WHERE is_deleted = false AND name ILIKE $1
         "#,

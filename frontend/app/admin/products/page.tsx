@@ -41,8 +41,8 @@ export default function ProductsPage() {
   const fetchData = async () => {
     try {
       const [productsResponse, categoriesResponse] = await Promise.all([
-        api.get("/api/product"),
-        api.get("/api/category/list"),
+        api.get("/api/products"),
+        api.get("/api/list"),
       ])
       setProducts(productsResponse.data)
       setCategories(categoriesResponse.data)
@@ -62,7 +62,7 @@ export default function ProductsPage() {
     if (!confirm("Are you sure you want to delete this product?")) return
 
     try {
-      await api.delete(`/api/product/delete/${id}`)
+      await api.delete(`/api/products/delete/${id}`)
       toast.success("Product deleted successfully")
       fetchData()
     } catch (error) {
@@ -75,7 +75,7 @@ export default function ProductsPage() {
     if (!confirm("Are you sure you want to soft delete this product?")) return
 
     try {
-      await api.delete(`/api/product/soft-delete/${id}`)
+      await api.delete(`/api/products/soft-delete/${id}`)
       toast.success("Product soft deleted successfully")
       fetchData()
     } catch (error) {
@@ -213,7 +213,7 @@ export default function ProductsPage() {
                     </td>
                     <td className="py-4 px-4 text-slate-300">{product.id}</td>
                     <td className="py-4 px-4 text-slate-300">{getCategoryName(product.category_id)}</td>
-                    <td className="py-4 px-4 text-emerald-400 font-medium">${product.price.toFixed(2)}</td>
+                    <td className="py-4 px-4 text-emerald-400 font-medium">${Number(product.price).toFixed(2)}</td>
                     <td className="py-4 px-4">
                       <span className={getStockColor(product.stock_quantity)}>
                         {product.stock_quantity === 0 ? "Out of Stock" : product.stock_quantity}
@@ -237,13 +237,13 @@ export default function ProductsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="bg-slate-800 border-slate-700">
                           <DropdownMenuItem asChild className="text-slate-300 hover:text-white hover:bg-slate-700">
-                            <Link href={`/admin/products/${product.id}`}>
+                            <Link href={`/admin/products/get/${product.id}`}>
                               <Eye className="w-4 h-4 mr-2" />
                               View
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild className="text-slate-300 hover:text-white hover:bg-slate-700">
-                            <Link href={`/admin/products/${product.id}/edit`}>
+                            <Link href={`/admin/products/update/${product.id}`}>
                               <Edit className="w-4 h-4 mr-2" />
                               Edit
                             </Link>

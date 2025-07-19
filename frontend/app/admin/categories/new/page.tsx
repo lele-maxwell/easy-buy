@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { api } from "@/lib/api"
+import { admin } from "@/lib/api"
 
 export default function NewCategoryPage() {
   const router = useRouter()
@@ -23,7 +23,7 @@ export default function NewCategoryPage() {
     setIsLoading(true)
 
     try {
-      await api.post("/api/category/create", formData)
+      await admin.categories.create(formData)
       toast.success("Category created successfully")
       router.push("/admin/categories")
     } catch (error) {

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { api } from "@/lib/api"
+import { ProductImageUpload, ImageGallery } from "@/components/admin/product-image-upload"
 
 interface Category {
   id: string
@@ -20,7 +21,10 @@ interface Category {
 export default function NewProductPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
+  const [productId, setProductId] = useState<string | null>(null)
+  const [images, setImages] = useState<string[]>([])
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -32,7 +36,7 @@ export default function NewProductPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.get("/api/category/list")
+        const response = await api.get("/api/list")
         setCategories(response.data)
       } catch (error) {
         console.error("Failed to fetch categories:", error)
@@ -48,21 +52,25 @@ export default function NewProductPage() {
     setIsLoading(true)
 
     try {
-      const response = await api.post("/api/product", {
+      const response = await api.post("/api/products", {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
         stock_quantity: parseInt(formData.stock_quantity),
-        category_id: formData.category_id,
+        category_id: formData.category_id || null,
       })
 
-      if (response.status === 201) {
-        toast.success("Product created successfully")
-        router.push("/admin/products")
-      }
+      setProductId(response.data.id)
+      toast.success("Product created successfully! You can now upload images.", {
+        duration: 5000,
+        position: "top-center",
+      })
     } catch (error) {
       console.error("Failed to create product:", error)
-      toast.error("Failed to create product")
+      toast.error("Failed to create product", {
+        duration: 3000,
+        position: "top-center",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -75,6 +83,27 @@ export default function NewProductPage() {
 
   const handleCategoryChange = (value: string) => {
     setFormData((prev) => ({ ...prev, category_id: value }))
+  }
+
+  const handleImageUploadComplete = (newImageUrl: string) => {
+    setImages(prev => [...prev, newImageUrl])
+    toast.success("Image uploaded successfully")
+  }
+
+  const handleImageUploadError = (error: string) => {
+    toast.error(error)
+  }
+
+  const handleImageDelete = async (imageUrl: string) => {
+    setIsDeleting(true)
+    try {
+      setImages(prevImages => prevImages.filter(img => img !== imageUrl))
+    } catch (error) {
+      console.error('Failed to delete image:', error)
+      toast.error('Failed to delete image')
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -166,6 +195,24 @@ export default function NewProductPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Image Upload Section */}
+            {productId && (
+              <div className="space-y-4">
+                <Label className="text-white">Product Images</Label>
+                <ImageGallery 
+                  images={images} 
+                  productId={productId}
+                  onDelete={handleImageDelete}
+                  isDeleting={isDeleting}
+                />
+                <ProductImageUpload
+                  productId={productId}
+                  onUploadComplete={handleImageUploadComplete}
+                  onUploadError={handleImageUploadError}
+                />
+              </div>
+            )}
 
             <div className="flex justify-end space-x-4">
               <Button

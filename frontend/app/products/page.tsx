@@ -7,6 +7,7 @@ import ProductFilters from "@/components/product-filters"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { products } from "@/lib/api"
+import Image from "next/image"
 
 interface Product {
   id: string
@@ -16,6 +17,8 @@ interface Product {
   stock_quantity: number
   created_at: string | null
   updated_at: string | null
+  image_url?: string | null
+  images?: string[] | null
 }
 
 interface Filters {
@@ -27,7 +30,7 @@ interface Filters {
 
 export default function ProductsPage() {
   const router = useRouter()
-  const [products, setProducts] = useState<Product[]>([])
+  const [productsList, setProductsList] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState<Filters>({
@@ -41,9 +44,9 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       try {
         const data = await products.list();
-        setProducts(data);
+        setProductsList(data);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching products:', error, error?.response);
         setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);
@@ -53,7 +56,7 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = productsList.filter((product) => {
     if (filters.minPrice && product.price < parseFloat(filters.minPrice)) {
       return false;
     }
@@ -119,7 +122,12 @@ export default function ProductsPage() {
         <div className="md:col-span-3">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={product.id}
+                {...product}
+                description={product.description || ''}
+                images={product.images || []}
+              />
             ))}
           </div>
           {filteredProducts.length === 0 && (

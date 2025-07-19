@@ -74,119 +74,116 @@ export default function ProductFilters({ filters, onFiltersChange }: ProductFilt
   }
 
   return (
-    <>
-      {/* Mobile Filter Toggle */}
-      <div className="lg:hidden mb-4">
-        <Button
-          onClick={() => setIsOpen(!isOpen)}
-          variant="outline"
-          className="w-full bg-slate-800 border-slate-600 text-white hover:bg-slate-700"
-        >
-          Filters {hasActiveFilters && `(${Object.values(filters).filter(Boolean).length})`}
-        </Button>
-      </div>
-
-      {/* Filter Panel */}
-      <div
-        className={`${
-          isOpen ? "block" : "hidden"
-        } lg:block bg-slate-800 rounded-lg border border-slate-700 p-6 space-y-6`}
+    <div className="sticky top-20 z-40 w-full max-w-xs text-sm">
+      <Button
+        onClick={() => setIsOpen(!isOpen)}
+        variant="outline"
+        className="w-full justify-between text-sm bg-deepnavy/60 border border-gold/30 text-cream font-semibold rounded-xl shadow-inner hover:bg-emerald/10 hover:text-emerald"
       >
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">Filters</h3>
-          {hasActiveFilters && (
-            <Button
-              onClick={handleReset}
-              variant="ghost"
-              size="sm"
-              className="text-emerald-400 hover:text-emerald-300 hover:bg-slate-700"
-            >
-              Reset Filters
-            </Button>
-          )}
-        </div>
+        Filters
+        <span className="ml-2 text-xs bg-emerald text-softblack px-2 py-1 rounded-full border border-gold/40 font-bold">
+          {hasActiveFilters ? "Active" : "0"}
+        </span>
+      </Button>
 
-        <Separator className="bg-slate-700" />
+      {isOpen && (
+        <div className="mt-3 p-4 border border-earthy-caramel/40 rounded-2xl bg-gradient-to-br from-softblack/90 via-deepnavy/80 to-black/80 shadow-2xl backdrop-blur-md space-y-4 text-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-cream tracking-wide">Filters</h3>
+            {hasActiveFilters && (
+              <Button
+                onClick={handleReset}
+                variant="ghost"
+                size="sm"
+                className="text-emerald hover:text-gold hover:bg-emerald/10 font-semibold"
+              >
+                Reset Filters
+              </Button>
+            )}
+          </div>
 
-        {/* Category Filter */}
-        <div className="space-y-3">
-          <Label className="text-white font-medium">Category</Label>
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="all-categories"
-                checked={filters.category === "all" || !filters.category}
-                onCheckedChange={(checked) => {
-                  updateFilter("category", checked ? "all" : "all")
-                }}
-                className="border-slate-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
-              />
-              <Label htmlFor="all-categories" className="text-slate-300 hover:text-white cursor-pointer">
-                All Categories
-              </Label>
-            </div>
-            {categories.map((category) => (
-              <div key={category.id} className="flex items-center space-x-2">
+          <Separator className="bg-gold/30" />
+
+          {/* Category Filter */}
+          <div className="space-y-3">
+            <Label className="text-cream font-semibold">Category</Label>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
                 <Checkbox
-                  id={category.id}
-                  checked={selectedCategories.includes(category.id)}
-                  onCheckedChange={() => handleCategoryChange(category.id)}
-                  className="border-slate-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                  id="all-categories"
+                  checked={filters.category === "all" || !filters.category}
+                  onCheckedChange={(checked) => {
+                    updateFilter("category", checked ? "all" : "all")
+                  }}
+                  className="border-gold/40 data-[state=checked]:bg-emerald data-[state=checked]:border-emerald"
                 />
-                <Label htmlFor={category.id} className="text-slate-300 hover:text-white cursor-pointer">
-                  {category.name}
+                <Label htmlFor="all-categories" className="text-cream hover:text-emerald cursor-pointer">
+                  All Categories
                 </Label>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <Separator className="bg-slate-700" />
-
-        {/* Price Range Filter */}
-        <div className="space-y-3">
-          <Label className="text-white font-medium">Price Range</Label>
-          <div className="space-y-4">
-            <Slider
-              defaultValue={[0, 1000]}
-              max={1000}
-              step={10}
-              value={priceRange}
-              onValueChange={handlePriceChange}
-              className="w-full"
-            />
-            <div className="flex justify-between text-sm text-gray-300">
-              <span>${priceRange[0]}</span>
-              <span>${priceRange[1]}</span>
+              {categories.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={category.id}
+                    checked={selectedCategories.includes(category.id)}
+                    onCheckedChange={() => handleCategoryChange(category.id)}
+                    className="border-gold/40 data-[state=checked]:bg-emerald data-[state=checked]:border-emerald"
+                  />
+                  <Label htmlFor={category.id} className="text-cream hover:text-emerald cursor-pointer">
+                    {category.name}
+                  </Label>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
 
-        <Separator className="bg-slate-700" />
+          <Separator className="bg-gold/30" />
 
-        {/* Stock Filter */}
-        <div className="space-y-3">
-          <Label className="text-white font-medium">Availability</Label>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="inStock"
-              checked={filters.inStock}
-              onCheckedChange={(checked) => updateFilter("inStock", !!checked)}
-              className="border-slate-600 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
-            />
-            <Label htmlFor="inStock" className="text-slate-300 hover:text-white cursor-pointer">
-              In Stock Only
-            </Label>
+          {/* Price Range Filter */}
+          <div className="space-y-3">
+            <Label className="text-cream font-semibold">Price Range</Label>
+            <div className="space-y-4">
+              <Slider
+                defaultValue={[0, 1000]}
+                max={1000}
+                step={10}
+                value={priceRange}
+                onValueChange={handlePriceChange}
+                className="w-full"
+              />
+              <div className="flex justify-between text-sm text-cream/80">
+                <span>${priceRange[0]}</span>
+                <span>${priceRange[1]}</span>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="bg-gold/30" />
+
+          {/* Stock Filter */}
+          <div className="space-y-3">
+            <Label className="text-cream font-semibold">Availability</Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="inStock"
+                checked={filters.inStock}
+                onCheckedChange={(checked) => updateFilter("inStock", !!checked)}
+                className="border-gold/40 data-[state=checked]:bg-emerald data-[state=checked]:border-emerald"
+              />
+              <Label htmlFor="inStock" className="text-cream hover:text-emerald cursor-pointer">
+                In Stock Only
+              </Label>
+            </div>
+          </div>
+
+          {/* Mobile Close Button */}
+          <div className="lg:hidden pt-4">
+            <Button onClick={() => setIsOpen(false)} className="w-full bg-emerald hover:bg-gold text-softblack font-bold border border-gold/40 shadow-lg">
+              Apply Filters
+            </Button>
           </div>
         </div>
-
-        {/* Mobile Close Button */}
-        <div className="lg:hidden pt-4">
-          <Button onClick={() => setIsOpen(false)} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
-            Apply Filters
-          </Button>
-        </div>
-      </div>
-    </>
+      )}
+    </div>
   )
 }

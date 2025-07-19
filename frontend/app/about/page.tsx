@@ -2,6 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { Shield, Truck, CreditCard, HeadsetIcon } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 const features = [
   {
@@ -37,15 +38,31 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {features.map((feature) => (
-          <Card key={feature.title} className="p-6">
-            <div className="flex flex-col items-center text-center">
-              <feature.icon className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
-            </div>
-          </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        {features.map((feature, i) => (
+          <motion.div
+            key={feature.title}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1, duration: 0.7, type: 'spring' }}
+            viewport={{ once: true }}
+          >
+            <Card className="p-8 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-black/80 border border-slate-800 shadow-2xl rounded-3xl backdrop-blur-md relative overflow-hidden group transition-transform hover:scale-105 hover:shadow-emerald-700/30">
+              {/* Glow/gradient circle behind icon */}
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl z-0" />
+              <div className="relative flex flex-col items-center text-center z-10">
+                <div className="mb-6 flex items-center justify-center w-20 h-20 rounded-full bg-emerald-900/40 shadow-inner border-2 border-emerald-700/30 group-hover:scale-110 transition-transform">
+                  <feature.icon className="w-10 h-10 text-emerald-400 drop-shadow-lg" />
+                </div>
+                <h3 className="text-2xl font-extrabold mb-2 text-white tracking-tight drop-shadow">
+                  {feature.title}
+                </h3>
+                <p className="text-slate-300 text-base leading-relaxed font-medium">
+                  {feature.description}
+                </p>
+              </div>
+            </Card>
+          </motion.div>
         ))}
       </div>
 

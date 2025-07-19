@@ -113,6 +113,3 @@ next-env.d.ts
 .Trashes
 ehthumbs.db
 Thumbs.db
-frontend/.next/
-frontend/app/
-frontend/next-env.d.ts

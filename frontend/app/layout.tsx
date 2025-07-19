@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/auth-context"
 import { CartProvider } from "@/context/cart-context"
 import { NavbarWrapper } from "@/components/navbar-wrapper"
 import Footer from "@/components/footer"
+import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -30,6 +31,7 @@ export default function RootLayout({
               </main>
               <Footer />
             </div>
+            <Toaster richColors position="top-center" />
           </CartProvider>
         </AuthProvider>
       </body>

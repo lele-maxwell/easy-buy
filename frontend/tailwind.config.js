@@ -41,6 +41,23 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom palette
+        softblack: '#18181b',
+        deepnavy: '#1e293b',
+        emerald: {
+          DEFAULT: '#10b981',
+          dark: '#047857',
+          light: '#6ee7b7',
+        },
+        earthy: {
+          terracotta: '#e07a5f',
+          caramel: '#c68642',
+        },
+        blush: '#f9c6c9',
+        mint: '#a7f3d0',
+        gold: '#ffd700',
+        cream: '#f3f4ed',
+        oatmeal: '#f5f5dc',
       },
       borderRadius: {
         lg: "var(--radius)",
