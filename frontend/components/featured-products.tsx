@@ -56,7 +56,13 @@ export default function FeaturedProducts() {
           throw new Error('Invalid response format')
         }
         
-        setProducts(response.data.slice(0, 8)) // Get first 8 products
+        let sorted = response.data
+        if (Array.isArray(sorted)) {
+          sorted = sorted
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .filter(product => Array.isArray(product.images) && product.images.length > 0); // Only products with images
+        }
+        setProducts(sorted.slice(0, 6)) // Get 6 most recent with images
         setLoading(false)
       } catch (err: any) {
         console.error('Error fetching products:', err)
